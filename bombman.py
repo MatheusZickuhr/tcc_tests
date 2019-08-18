@@ -5737,6 +5737,10 @@ if __name__ == "__main__":
     profiler = Profiler()  # profiler object is global, for simple access
     game = Game()
 
+    from agents.agents_controller import AgentsController
+
+    ac = AgentsController()
+
     if len(sys.argv) > 1:
         if "--test" in sys.argv:  # allows to quickly init a game
             game.setup_test_game(0)

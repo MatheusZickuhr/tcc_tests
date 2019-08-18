@@ -1,5 +1,5 @@
 from pynput.keyboard import Key, Listener
-from threading import Thread
+from dummy_agent import DummyAgent
 
 
 def on_key_pressed(key):
@@ -9,6 +9,8 @@ def on_key_pressed(key):
 def on_key_release(key):
     if key == start_agent_key:
         print('agent started')
+        agent = DummyAgent()
+        agent.start()
         listener.stop()
 
 
