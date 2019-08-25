@@ -1,3 +1,6 @@
+original game repo: https://gitlab.com/drummyfish/Bombman
+obtained from: https://osgameclones.com/
+
 **License update**: from version 0.95 the whole game, including media, is **CC0**. The assets were replaced by ones released under CC0.
 
 ![screens](https://github.com/drummyfish/bombman/blob/master/resources/logo.png?raw=true)
