@@ -1,25 +1,25 @@
 from pynput.keyboard import Key, Listener
-from dummy_agent import DummyAgent
 
+from agents.dummy_agent import DummyAgent
+from agents.neat_agent import NeatAgent
 
-def on_key_pressed(key):
-    pass
-
-
-def on_key_release(key):
-    if key == start_agent_key:
-        print('agent started')
-        agent = DummyAgent()
-        agent.start()
-        listener.stop()
-
-
-listener = Listener(on_press=on_key_pressed, on_release=on_key_release)
 start_agent_key = Key.f1
 
 
 class AgentsController:
 
-    def __init__(self):
+    def __init__(self, game_instance=None):
+        self.listener = Listener(on_press=self.on_key_pressed, on_release=self.on_key_release)
+        self.game_instance = game_instance
         print('press {} to start the agent'.format(start_agent_key))
-        listener.start()
+        self.listener.start()
+
+    def on_key_pressed(self, key):
+        pass
+
+    def on_key_release(self, key):
+        if key == start_agent_key:
+            print('agent started')
+            agent = NeatAgent(game_instance=self.game_instance)
+            agent.start()
+            self.listener.stop()

@@ -5739,7 +5739,7 @@ if __name__ == "__main__":
 
     from agents.agents_controller import AgentsController
 
-    ac = AgentsController()
+    ac = AgentsController(game_instance=game)
 
     if len(sys.argv) > 1:
         if "--test" in sys.argv:  # allows to quickly init a game

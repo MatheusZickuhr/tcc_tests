@@ -4,8 +4,8 @@ import agent_actions
 
 class Agent:
 
-    def __init__(self):
-        pass
+    def __init__(self, game_instance=None):
+        self.game_instance = game_instance
 
     def do_action(self, action):
         if action == agent_actions.GO_RIGHT:
