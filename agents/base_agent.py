@@ -18,3 +18,14 @@ class Agent:
             virtual_joystick.go_down()
         elif action == agent_actions.DROP_BOMB:
             virtual_joystick.drop_bomb()
+
+    def get_player_instance(self):
+        if self.game_instance.game_map is not None:
+            return self.game_instance.game_map.players[0]
+        else:
+            return None
+
+    def is_player_dead(self):
+        if self.get_player_instance() is not None:
+            return self.get_player_instance().is_dead()
+        return True

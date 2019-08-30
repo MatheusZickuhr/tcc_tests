@@ -1,3 +1,5 @@
+from threading import Thread
+
 from pynput.keyboard import Key, Listener
 
 from agents.dummy_agent import DummyAgent
@@ -18,8 +20,11 @@ class AgentsController:
         pass
 
     def on_key_release(self, key):
-        if key == start_agent_key:
+        def start_agent():
             print('agent started')
             agent = NeatAgent(game_instance=self.game_instance)
             agent.start()
+
+        if key == start_agent_key:
+            Thread(target=start_agent).start()
             self.listener.stop()
