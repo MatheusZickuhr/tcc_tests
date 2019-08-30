@@ -18,6 +18,8 @@ class Agent:
             virtual_joystick.go_down()
         elif action == agent_actions.DROP_BOMB:
             virtual_joystick.drop_bomb()
+        elif action == agent_actions.WAIT:
+            virtual_joystick.wait()
 
     def get_player_instance(self):
         if self.game_instance.game_map is not None:

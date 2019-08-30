@@ -35,3 +35,7 @@ def go_right():
 def drop_bomb():
     keyboard.press('c')
     keyboard.release('c')
+
+
+def wait():
+    time.sleep(0.5)
