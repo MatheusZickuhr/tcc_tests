@@ -110,7 +110,7 @@ class Profiler(object):
         if not (section_name in self.sections):
             self.sections[section_name] = [0.0 for i in range(Profiler.SHOW_LAST)]
 
-        section_values = self.sections[section_name]
+        seaaction_values = self.sections[section_name]
 
         section_values[0] -= pygame.time.get_ticks()
 
@@ -841,7 +841,7 @@ class Player(Positionable):
 
                 if self.boxing:
                     destination_tile = (
-                    forward_tile[0] + direction_vector[0] * 3, forward_tile[1] + direction_vector[1] * 3)
+                        forward_tile[0] + direction_vector[0] * 3, forward_tile[1] + direction_vector[1] * 3)
                     bomb_hit.send_flying(destination_tile)
                     game_map.add_sound_event(SoundPlayer.SOUND_EVENT_KICK)
                 elif self.has_shoe:
@@ -868,17 +868,17 @@ class Player(Positionable):
         else:
             helper_mapping = {
                 GameMap.COLLISION_BORDER_UP: (
-                Player.STATE_WALKING_UP, [Player.STATE_WALKING_LEFT, Player.STATE_WALKING_RIGHT],
-                (0, distance_to_travel)),
+                    Player.STATE_WALKING_UP, [Player.STATE_WALKING_LEFT, Player.STATE_WALKING_RIGHT],
+                    (0, distance_to_travel)),
                 GameMap.COLLISION_BORDER_DOWN: (
-                Player.STATE_WALKING_DOWN, [Player.STATE_WALKING_LEFT, Player.STATE_WALKING_RIGHT],
-                (0, -1 * distance_to_travel)),
+                    Player.STATE_WALKING_DOWN, [Player.STATE_WALKING_LEFT, Player.STATE_WALKING_RIGHT],
+                    (0, -1 * distance_to_travel)),
                 GameMap.COLLISION_BORDER_RIGHT: (
-                Player.STATE_WALKING_RIGHT, [Player.STATE_WALKING_UP, Player.STATE_WALKING_DOWN],
-                (- 1 * distance_to_travel, 0)),
+                    Player.STATE_WALKING_RIGHT, [Player.STATE_WALKING_UP, Player.STATE_WALKING_DOWN],
+                    (- 1 * distance_to_travel, 0)),
                 GameMap.COLLISION_BORDER_LEFT: (
-                Player.STATE_WALKING_LEFT, [Player.STATE_WALKING_UP, Player.STATE_WALKING_DOWN],
-                (distance_to_travel, 0))
+                    Player.STATE_WALKING_LEFT, [Player.STATE_WALKING_UP, Player.STATE_WALKING_DOWN],
+                    (distance_to_travel, 0))
             }
 
             if collision_type in helper_mapping:
@@ -905,7 +905,7 @@ class Player(Positionable):
             self.state_time += dt
 
             if self.state_time >= (
-            Player.JUMP_DURATION if self.state == Player.STATE_IN_AIR else Player.TELEPORT_DURATION):
+                    Player.JUMP_DURATION if self.state == Player.STATE_IN_AIR else Player.TELEPORT_DURATION):
                 self.state = self.state_backup
                 self.state_time = 0
                 self.jumping_to = None
@@ -978,7 +978,7 @@ class Player(Positionable):
                 forward_tile = self.get_forward_tile_position()
                 direction_vector = self.get_direction_vector()
                 destination_tile = (
-                forward_tile[0] + direction_vector[0] * 3, forward_tile[1] + direction_vector[1] * 3)
+                    forward_tile[0] + direction_vector[0] * 3, forward_tile[1] + direction_vector[1] * 3)
                 bomb_thrown.send_flying(destination_tile)
                 self.wait_for_bomb_release = True
                 self.throwing_time_left = 200
@@ -1086,7 +1086,7 @@ class Bomb(Positionable):
         self.flight_info.direction = tuple(self.flight_info.direction)
 
         destination_tile_coords = (
-        destination_tile_coords[0] % GameMap.MAP_WIDTH, destination_tile_coords[1] % GameMap.MAP_HEIGHT)
+            destination_tile_coords[0] % GameMap.MAP_WIDTH, destination_tile_coords[1] % GameMap.MAP_HEIGHT)
         self.move_to_tile_center(destination_tile_coords)
 
     # ----------------------------------------------------------------------------
@@ -1529,7 +1529,7 @@ class GameMap(object):
             return False  # coordinates outside the map
 
         return self.tiles[tile_coordinates[1]][tile_coordinates[0]].special_object in (
-        MapTile.SPECIAL_OBJECT_TELEPORT_A, MapTile.SPECIAL_OBJECT_TELEPORT_B)
+            MapTile.SPECIAL_OBJECT_TELEPORT_A, MapTile.SPECIAL_OBJECT_TELEPORT_B)
 
     # ----------------------------------------------------------------------------
 
@@ -1765,7 +1765,8 @@ class GameMap(object):
                         if not self.tile_is_walkable(bomb_tile) or self.tile_has_player(
                                 bomb_tile) or self.tile_has_teleport(bomb_tile):
                             destination_tile = (
-                            bomb_tile[0] + bomb.flight_info.direction[0], bomb_tile[1] + bomb.flight_info.direction[1])
+                                bomb_tile[0] + bomb.flight_info.direction[0],
+                                bomb_tile[1] + bomb.flight_info.direction[1])
                             bomb.send_flying(destination_tile)
                         else:  # bomb lands
                             bomb.movement = Bomb.BOMB_NO_MOVEMENT
@@ -3012,7 +3013,7 @@ class Menu(object):
                 self.selected_item = (max(0, self.selected_item[0] - 1), self.selected_item[1])
             elif action == PlayerKeyMaps.ACTION_DOWN:
                 self.selected_item = (
-                min(len(self.items[self.selected_item[1]]) - 1, self.selected_item[0] + 1), self.selected_item[1])
+                    min(len(self.items[self.selected_item[1]]) - 1, self.selected_item[0] + 1), self.selected_item[1])
             elif action == PlayerKeyMaps.ACTION_LEFT:
                 new_column = max(0, self.selected_item[1] - 1)
                 self.selected_item = (min(len(self.items[new_column]) - 1, self.selected_item[0]), new_column)
@@ -3522,7 +3523,7 @@ class PlaySetupMenu(Menu):
                         new_value = slot[0] + 1
 
                     slots[self.selected_item[0] - 1] = (
-                    new_value, slot[1] if slot != None else self.selected_item[0] - 1) if new_value <= 3 else None
+                        new_value, slot[1] if slot != None else self.selected_item[0] - 1) if new_value <= 3 else None
                 else:
                     # changing teams
 
@@ -3604,12 +3605,12 @@ class Renderer(object):
             filename_wall = os.path.join(Game.RESOURCE_PATH, "tile_" + environment_name + "_wall.png")
 
             self.environment_images[environment_name] = (
-            pygame.image.load(filename_floor), pygame.image.load(filename_block), pygame.image.load(filename_wall))
+                pygame.image.load(filename_floor), pygame.image.load(filename_block), pygame.image.load(filename_wall))
 
         self.prerendered_map = None  # keeps a reference to a map for which some parts have been prerendered
         self.prerendered_map_background = pygame.Surface((
-                                                         GameMap.MAP_WIDTH * Renderer.MAP_TILE_WIDTH + 2 * Renderer.MAP_BORDER_WIDTH,
-                                                         GameMap.MAP_HEIGHT * Renderer.MAP_TILE_HEIGHT + 2 * Renderer.MAP_BORDER_WIDTH))
+            GameMap.MAP_WIDTH * Renderer.MAP_TILE_WIDTH + 2 * Renderer.MAP_BORDER_WIDTH,
+            GameMap.MAP_HEIGHT * Renderer.MAP_TILE_HEIGHT + 2 * Renderer.MAP_BORDER_WIDTH))
 
         self.player_images = []  ##< player images in format [color index]["sprite name"] and [color index]["sprite name"][frame]
 
@@ -3854,8 +3855,8 @@ class Renderer(object):
     def get_map_render_position():
         screen_size = Renderer.get_screen_size()
         return ((screen_size[0] - Renderer.MAP_BORDER_WIDTH * 2 - Renderer.MAP_TILE_WIDTH * GameMap.MAP_WIDTH) / 2, (
-                    screen_size[
-                        1] - Renderer.MAP_BORDER_WIDTH * 2 - Renderer.MAP_TILE_HEIGHT * GameMap.MAP_HEIGHT - 50) / 2)
+                screen_size[
+                    1] - Renderer.MAP_BORDER_WIDTH * 2 - Renderer.MAP_TILE_HEIGHT * GameMap.MAP_HEIGHT - 50) / 2)
 
         # ----------------------------------------------------------------------------
 
@@ -3863,9 +3864,11 @@ class Renderer(object):
     def map_position_to_pixel_position(map_position, offset=(0, 0)):
         map_render_location = Renderer.get_map_render_position()
         return (
-        map_render_location[0] + int(map_position[0] * Renderer.MAP_TILE_WIDTH) + Renderer.MAP_BORDER_WIDTH + offset[0],
-        map_render_location[1] + int(map_position[1] * Renderer.MAP_TILE_HEIGHT) + Renderer.MAP_BORDER_WIDTH + offset[
-            1])
+            map_render_location[0] + int(map_position[0] * Renderer.MAP_TILE_WIDTH) + Renderer.MAP_BORDER_WIDTH +
+            offset[0],
+            map_render_location[1] + int(map_position[1] * Renderer.MAP_TILE_HEIGHT) + Renderer.MAP_BORDER_WIDTH +
+            offset[
+                1])
 
     def set_resolution(self, new_resolution):
         self.screen_resolution = new_resolution
@@ -4166,8 +4169,8 @@ class Renderer(object):
 
         if len(menu_to_render.get_text()) != 0:
             result.blit(self.menu_item_images[0][1], (
-            self.screen_center[0] - self.menu_item_images[0][1].get_size()[0] / 2,
-            y))  # menu description text image is at index 0
+                self.screen_center[0] - self.menu_item_images[0][1].get_size()[0] / 2,
+                y))  # menu description text image is at index 0
             y += self.menu_item_images[0][1].get_size()[1] + Renderer.MENU_LINE_SPACING * 2
 
         menu_items = menu_to_render.get_items()
@@ -4222,7 +4225,7 @@ class Renderer(object):
                     # item is selected
                     scale = (8 + math.sin(pygame.time.get_ticks() / 40.0)) / 7.0  # make the pulsating effect
                     item_image = pygame.transform.scale(item_image, (
-                    int(scale * item_image.get_size()[0]), int(scale * item_image.get_size()[1])))
+                        int(scale * item_image.get_size()[0]), int(scale * item_image.get_size()[1])))
                     x = xs[j] - item_image.get_size()[0] / 2
                     pygame.draw.rect(result, (255, 0, 0), pygame.Rect(x - 4, y - 2, item_image.get_size()[0] + 8,
                                                                       item_image.get_size()[1] + 4))
@@ -4434,8 +4437,8 @@ class Renderer(object):
                                           (255, 255, 255))
 
         self.prerendered_map_background.blit(game_info_text, (
-        (self.prerendered_map_background.get_size()[0] - game_info_text.get_size()[0]) / 2,
-        self.prerendered_map_background.get_size()[1] - game_info_text.get_size()[1]))
+            (self.prerendered_map_background.get_size()[0] - game_info_text.get_size()[0]) / 2,
+            self.prerendered_map_background.get_size()[1] - game_info_text.get_size()[1]))
 
         self.prerendered_map = map_to_render
 
@@ -4468,7 +4471,7 @@ class Renderer(object):
 
             player_image = self.player_images[color_index]["down"]
             image_to_render = pygame.transform.scale(player_image, (
-            int(scale * player_image.get_size()[0]), int(scale * player_image.get_size()[1])))
+                int(scale * player_image.get_size()[0]), int(scale * player_image.get_size()[1])))
             draw_shadow = False
 
             relative_offset[0] = -1 * (image_to_render.get_size()[0] / 2 - Renderer.PLAYER_SPRITE_CENTER[
@@ -4974,7 +4977,8 @@ class AI(object):
             # up                     # right                     # down                     # left
             tile_increment = ((0, -1), (1, 0), (0, 1), (-1, 0))
             action = (
-            PlayerKeyMaps.ACTION_UP, PlayerKeyMaps.ACTION_RIGHT, PlayerKeyMaps.ACTION_DOWN, PlayerKeyMaps.ACTION_LEFT)
+                PlayerKeyMaps.ACTION_UP, PlayerKeyMaps.ACTION_RIGHT, PlayerKeyMaps.ACTION_DOWN,
+                PlayerKeyMaps.ACTION_LEFT)
 
             # should I move up, right, down or left?
 
@@ -5025,7 +5029,7 @@ class AI(object):
                 self.outputs.append((self.player.get_number(), PlayerKeyMaps.ACTION_BOMB_DOUBLE))
         elif self.player.get_bombs_left() > 0 and (
                 self.player.can_throw() or self.game_map.get_danger_value(current_tile) > 2000 and max(
-                escape_direction_ratings) > 0):
+            escape_direction_ratings) > 0):
             # should I lay bomb?
 
             chance_to_put_bomb = 100  # one in how many
@@ -5733,7 +5737,15 @@ class Game(object):
         # ==============================================================================
 
 
+def set_window_pos():
+    x = 0
+    y = 0
+    os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (x, y)
+
+
 if __name__ == "__main__":
+    set_window_pos()
+
     profiler = Profiler()  # profiler object is global, for simple access
     game = Game()
 

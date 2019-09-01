@@ -1,7 +1,8 @@
 import random
 
-from agents import agent_actions
+from agents import agent_actions, screen_reader
 from agents import base_agent
+from agents.neat_ann import Ann
 from bombman import Game
 from utils import Timer
 
@@ -32,13 +33,15 @@ class NeatAgent(base_agent.Agent):
 
         print 'agent started playing'
         while not self.get_player_instance().is_dead():
-            action = current.get_next_action()
+            img_array = screen_reader.get_next_frame()
+            action = current.get_next_action(img_array)
+            print 'agent next action is ' + str(action)
             self.do_action(action)
         print 'agent finished playing'
 
     def create_population(self):
         population = []
-        for i in range(10):
+        for i in range(1):
             population.append(Ann())
 
         return population
@@ -80,12 +83,3 @@ class NeatAgent(base_agent.Agent):
     def is_game_running(self):
         return True if self.game_instance.state == Game.STATE_PLAYING else False
 
-
-class Ann:
-
-    def __init__(self, ann=None):
-        self.ann = ann
-        self.fitness = 0
-
-    def get_next_action(self):
-        return random.choice(agent_actions.possible_actions)
