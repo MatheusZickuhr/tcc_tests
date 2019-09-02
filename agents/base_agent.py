@@ -31,3 +31,15 @@ class Agent:
         if self.get_player_instance() is not None:
             return self.get_player_instance().is_dead()
         return True
+
+    def get_total_games_count(self):
+        if self.game_instance is None or self.game_instance.game_map is None:
+            return None
+
+        return self.game_instance.game_map.max_games
+
+    def get_current_game(self):
+        if self.game_instance is None or self.game_instance.game_map is None:
+            return None
+
+        return self.game_instance.game_map.game_number

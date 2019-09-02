@@ -21,10 +21,14 @@ class Ann:
         self.model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
     def get_next_action(self, img_array):
-        print ' img_array: '
-        print img_array
         return np.argmax(
             self.model.predict(
                 np.resize(img_array, (1, 72, 96, 3))
             )
         )
+
+    def reproduce(self, other):
+        return self, other
+
+    def mutate(self):
+        pass
