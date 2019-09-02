@@ -2,7 +2,6 @@ from keras.models import Sequential
 from keras.layers import Dense, Conv2D, Flatten
 from keras.datasets import mnist
 from keras.utils import to_categorical
-import matplotlib.pyplot as plt
 import numpy as np
 import agent_actions
 

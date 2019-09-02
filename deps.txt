@@ -1,0 +1,8 @@
+pip install pygame==1.9.2
+pip install pynput==1.4.2
+pip install Pillow
+pip install opencv-python
+pip install mss==2.0.22
+pip install keras
+pip install cntk
+pip install cntk-gpu
