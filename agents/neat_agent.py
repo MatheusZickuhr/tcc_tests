@@ -1,8 +1,10 @@
 import math
 import random
 
-from agents import agent_actions, screen_reader
+from keras.models import load_model
+
 from agents import base_agent
+from agents import screen_reader
 from agents.neat_ann import Ann
 from bombman import Game
 from utils import Timer
@@ -34,6 +36,18 @@ class NeatAgent(base_agent.Agent):
             self.crossover_mutate_replace()
 
         self.save_best_element()
+
+    def play_best(self):
+        self.wait_game_to_start()
+
+        current = self.load_best_ann()
+
+        print 'neat agent started (playng best)'
+
+        while self.get_current_game() < self.get_total_games_count():
+            time_alive_timer = Timer()
+            self.play(current=current)
+            self.calculate_fitness(element=current, time_alive=time_alive_timer.get_time_passed())
 
     def play(self, current):
         self.wait_agent_can_play()
@@ -133,4 +147,10 @@ class NeatAgent(base_agent.Agent):
 
     def save_best_element(self):
         best = sorted(self.population, key=lambda x: x.fitness)[-1]
+        best.model.save('neat_agent_best.h5')
         print 'best element with fitness {}'.format(best.fitness)
+
+    def load_best_ann(self):
+        ann = Ann(is_child=True)
+        ann.model = load_model('neat_agent_best.h5')
+        return ann
