@@ -3095,7 +3095,7 @@ class ResultMenu(Menu):
                 else:
                     announcement_text += ", "
 
-                announcement_text += Renderer.colored_color_name(winner_team_numbers[winner_number])
+                # announcement_text += Renderer.colored_color_name(winner_team_numbers[winner_number])
 
             announcement_text += "!"
 

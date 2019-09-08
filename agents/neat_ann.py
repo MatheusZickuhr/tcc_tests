@@ -33,7 +33,9 @@ class Ann:
                     random.randint(32, 512),
                     kernel_size=random.randint(1, 5),
                     activation='relu',
-                    input_shape=default_input_shape
+                    input_shape=default_input_shape,
+                    kernel_initializer='random_normal',
+                    bias_initializer='random_normal'
                 )
             )
 
@@ -47,7 +49,9 @@ class Ann:
                     Conv2D(
                         random.randint(32, 512),
                         kernel_size=random.randint(1, 5),
-                        activation='relu'
+                        activation='relu',
+                        kernel_initializer='random_normal',
+                        bias_initializer='random_normal'
                     )
                 )
 
@@ -88,7 +92,9 @@ class Ann:
                 input_layer.filters,
                 kernel_size=input_layer.kernel_size,
                 activation='relu',
-                input_shape=input_layer.input_shape
+                input_shape=input_layer.input_shape,
+                kernel_initializer='random_normal',
+                bias_initializer='random_normal'
             )
 
             input_layer_copy.set_weights(np.copy(input_layer.get_weights))
@@ -110,7 +116,9 @@ class Ann:
                     new_layer.filters,
                     kernel_size=new_layer.kernel_size,
                     activation='relu',
-                    input_shape=new_layer.input_shape
+                    input_shape=new_layer.input_shape,
+                    kernel_initializer='random_normal',
+                    bias_initializer='random_normal'
                 )
 
                 new_layer_copy.set_weights(np.copy(new_layer.get_weights()))

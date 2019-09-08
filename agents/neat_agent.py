@@ -35,6 +35,8 @@ class NeatAgent(base_agent.Agent):
 
             self.crossover_mutate_replace()
 
+            print 'toda a populacao jogou uma vez!'
+
         self.save_best_element()
 
     def play_best(self):
@@ -62,7 +64,7 @@ class NeatAgent(base_agent.Agent):
 
     def create_population(self, size=1):
         population = []
-        for i in range(1):
+        for i in range(size):
             population.append(Ann())
 
         return population
@@ -84,9 +86,9 @@ class NeatAgent(base_agent.Agent):
         selected_elements = []
         for i in range(number_of_elements):
 
-            random_number = math.random()
+            random_number = random.random()
 
-            for j in len(self.population):
+            for j in range(len(self.population)):
 
                 element = self.population[j]
 
@@ -126,6 +128,7 @@ class NeatAgent(base_agent.Agent):
 
     def get_next_element(self):
         self.current_element_index += 1
+        print 'jogando agora elemento {}'.format(str(self.current_element_index))
         return self.population[self.current_element_index]
 
     def has_next_element(self):
