@@ -1,16 +1,12 @@
-import math
 import random
 
 import keras
-from keras.models import Sequential
-from keras.layers import Dense, Conv2D, Flatten
-from keras.datasets import mnist
-from keras.utils import to_categorical
 import numpy as np
+from keras.layers import Dense, Conv2D, Flatten, MaxPooling2D, Dropout
+from keras.models import Sequential
+from keras.optimizers import Adam
+
 import agent_actions
-
-import os
-
 from agents import screen_reader
 
 default_input_shape = (screen_reader.OUTPUT_HEIGHT, screen_reader.OUTPUT_WIDTH, 3)
@@ -19,51 +15,40 @@ default_input_shape_resized = (1, screen_reader.OUTPUT_HEIGHT, screen_reader.OUT
 
 class Ann:
 
-    def __init__(self, is_child=False):
-        self.model = Sequential()
+    def __init__(self, create_model=True):
+        self.dense_layers = list()
+        self.model = self.create_model() if create_model else None
 
-        self.conv_layers_count = 0
-        self.flatten_layers_count = 0
+    def create_model(self):
+        model = Sequential()
 
-        if not is_child:
+        model.add(Conv2D(256, (3, 3), input_shape=default_input_shape, activation='relu'))
+        model.add(MaxPooling2D(2, 2))
+        model.add(Dropout(.2))
 
-            # layer de entrada
-            self.model.add(
-                Conv2D(
-                    random.randint(32, 512),
-                    kernel_size=random.randint(1, 5),
-                    activation='relu',
-                    input_shape=default_input_shape,
-                    kernel_initializer='random_normal',
-                    bias_initializer='random_normal'
-                )
-            )
+        model.add(Conv2D(256, (3, 3), activation='relu'))
+        model.add(MaxPooling2D(2, 2))
+        model.add(Dropout(.2))
 
-            # 1 a 4 layers
-            self.conv_layers_count = random.randint(1, 4)
-            # 1 layer
-            self.flatten_layers_count = 1
+        model.add(Flatten())
 
-            for i in range(self.conv_layers_count):
-                self.model.add(
-                    Conv2D(
-                        random.randint(32, 512),
-                        kernel_size=random.randint(1, 5),
-                        activation='relu',
-                        kernel_initializer='random_normal',
-                        bias_initializer='random_normal'
-                    )
-                )
+        self.dense_layers = [
+            Dense(random.randint(64, 1024)),
+            Dense(random.randint(64, 1024)),
+            Dense(random.randint(64, 1024))
+        ]
 
-            for i in range(self.flatten_layers_count):
-                self.model.add(Flatten())
+        for dense in self.dense_layers:
+            model.add(dense)
 
-            # layer de saida
-            self.model.add(Dense(len(agent_actions.possible_actions), activation='softmax'))
+        model.add(Dense(len(agent_actions.possible_actions), activation='linear'))
 
-            self.model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+        model.compile(loss="mse", optimizer=Adam(lr=0.001), metrics=['accuracy'])
+
+        return model
 
     def get_next_action(self, img_array):
+        keras.utils.normalize(img_array)
         return np.argmax(
             self.model.predict(
                 np.resize(img_array, default_input_shape_resized)
@@ -71,84 +56,33 @@ class Ann:
         )
 
     def reproduce(self, other):
-        children = (Ann(is_child=True), Ann(is_child=True),)
+        child_list = (Ann(create_model=False), Ann(create_model=False))
 
-        for child in children:
+        for child in child_list:
 
-            if random.random() < .5:
-                child.conv_layers_count = self.conv_layers_count
-            else:
-                child.conv_layers_count = other.conv_layers_count
+            child.model = Sequential()
 
-            if random.random() < .5:
-                child.flatten_layers_count = self.flatten_layers_count
-            else:
-                child.flatten_layers_count = other.flatten_layers_count
+            child.model.add(Conv2D(256, (3, 3), input_shape=default_input_shape, activation='relu'))
+            child.model.add(MaxPooling2D(2, 2))
+            child.model.add(Dropout(.2))
 
-            # layer de entrada
-            input_layer = self.model.layers[0] if random.random() < 0.5 else other.model.layers[0]
+            child.model.add(Conv2D(256, (3, 3), activation='relu'))
+            child.model.add(MaxPooling2D(2, 2))
+            child.model.add(Dropout(.2))
 
-            input_layer_copy = Conv2D(
-                input_layer.filters,
-                kernel_size=input_layer.kernel_size,
-                activation='relu',
-                input_shape=input_layer.input_shape,
-                kernel_initializer='random_normal',
-                bias_initializer='random_normal'
-            )
+            child.model.add(Flatten())
 
-            input_layer_copy.set_weights(np.copy(input_layer.get_weights))
-            child.model.add(input_layer_copy)
+            for index in range(len(self.dense_layers)):
+                selected_layer = self.dense_layers[index] if random.random() < .5 else other.dense_layers[index]
+                child.dense_layers.append(Dense(selected_layer.units))
+                child.model.add(child.dense_layers[index])
+                child.dense_layers[index].set_weights(selected_layer.get_weights())
 
-            for i in range(child.conv_layers_count):
-                possible_layers = []
-                possible_layers.extend(
-                    list(filter(lambda x: type(x) == keras.layers.convolutional.Conv2D, self.model.layers[1:]))
-                )
-                possible_layers.extend(
-                    list(filter(lambda x: type(x) == keras.layers.convolutional.Conv2D, other.model.layers[1:]))
-                )
+            child.model.add(Dense(len(agent_actions.possible_actions), activation='linear'))
 
-                new_layer = random.choice(possible_layers)
-                possible_layers.remove(new_layer)
+            child.model.compile(loss="mse", optimizer=Adam(lr=0.001), metrics=['accuracy'])
 
-                new_layer_copy = Conv2D(
-                    new_layer.filters,
-                    kernel_size=new_layer.kernel_size,
-                    activation='relu',
-                    input_shape=new_layer.input_shape,
-                    kernel_initializer='random_normal',
-                    bias_initializer='random_normal'
-                )
-
-                new_layer_copy.set_weights(np.copy(new_layer.get_weights()))
-
-                child.model.add(new_layer_copy)
-
-            for i in range(child.flatten_layers_count):
-                possible_layers = []
-                possible_layers.extend(
-                    list(filter(lambda x: type(x) == keras.layers.core.Flatten, self.model.layers))
-                )
-                possible_layers.extend(
-                    list(filter(lambda x: type(x) == keras.layers.core.Flatten, other.model.layers))
-                )
-
-                new_layer = random.choice(possible_layers)
-                possible_layers.remove(new_layer)
-
-                new_layer_copy = Flatten()
-
-                new_layer_copy.set_weights(np.copy(new_layer.get_weights()))
-
-                child.model.add(new_layer_copy)
-
-                # layer de saida
-
-            # layer de saida
-            child.model.add(Dense(len(agent_actions.possible_actions), activation='softmax'))
-
-        return children
+        return child_list
 
     def mutate(self):
         pass

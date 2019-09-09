@@ -92,10 +92,12 @@ class NeatAgent(base_agent.Agent):
 
                 element = self.population[j]
 
-                if random_number < sum([e.fitness / total_fitness for e in self.population[:j]]):
+                if random_number <= sum([e.fitness / total_fitness for e in self.population[:j + 1]]):
                     selected_elements.append(element)
 
                     break
+
+        print 'len elementos selecionados = {}'.format(len(selected_elements))
 
         children = []
         for i in range(0, len(selected_elements), 2):
