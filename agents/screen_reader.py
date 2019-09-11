@@ -7,8 +7,8 @@ mon = {'top': 0, 'left': 0, 'width': 960, 'height': 720}
 
 sct = mss()
 
-OUTPUT_WIDTH = 96
-OUTPUT_HEIGHT = 72
+OUTPUT_WIDTH = 48
+OUTPUT_HEIGHT = 36
 
 
 def get_next_frame():
