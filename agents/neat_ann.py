@@ -20,6 +20,7 @@ activation_functions = ['softmax', 'elu', 'selu', 'softplus', 'softsign', 'relu'
 class Ann:
 
     def __init__(self, create_model=True):
+        self.fitness = 0
         self.dense_layers = list()
         self.model = self.create_model() if create_model else None
 
@@ -132,7 +133,7 @@ class Ann:
                             bias_constraint=MinMaxNorm(min_value=0.0, max_value=1.0)
                         )
                     )
-
+            child.model.compile(loss="mse", optimizer=Adam(lr=0.001), metrics=['accuracy'])
         return child_list
 
     def mutate(self):
@@ -146,3 +147,91 @@ class Ann:
 
         for layer in self.model.layers:
             mutate_weights(layer.get_weights())
+
+
+class NeatAnn:
+
+    def __init__(self, create_model=True):
+        self.fitness = 0
+        self.conv_layers_count = random.randint(2, 10)
+        self.dense_layers_count = random.randint(2, 10)
+        if create_model:
+            self.model = self.create_model()
+
+    def create_model(self):
+        model = Sequential()
+
+        # input layer
+        model.add(
+            Conv2D(
+                random.randint(10, 256),
+                (random.randint(1, 6), random.randint(1, 6)),
+                input_shape=default_input_shape,
+                bias_initializer='glorot_uniform',
+                kernel_constraint=MinMaxNorm(min_value=0.0, max_value=1.0),
+                bias_constraint=MinMaxNorm(min_value=0.0, max_value=1.0),
+                activation=random.choice(activation_functions)
+            )
+        )
+
+        for i in range(self.conv_layers_count):
+            model.add(
+                Conv2D(
+                    random.randint(10, 256),
+                    (random.randint(1, 6), random.randint(1, 6)),
+                    activation=random.choice(activation_functions),
+                    bias_initializer='glorot_uniform',
+                    kernel_constraint=MinMaxNorm(min_value=0.0, max_value=1.0),
+                    bias_constraint=MinMaxNorm(min_value=0.0, max_value=1.0)
+                )
+            )
+
+        model.add(Flatten())
+
+        for i in range(self.dense_layers_count):
+            model.add(Dense(random.randint(1, 256), activation=random.choice(activation_functions)))
+
+        model.add(
+            Dense(
+                len(agent_actions.possible_actions), activation=random.choice(activation_functions),
+                bias_initializer='glorot_uniform',
+                kernel_constraint=MinMaxNorm(min_value=0.0, max_value=1.0),
+                bias_constraint=MinMaxNorm(min_value=0.0, max_value=1.0)
+            )
+        )
+
+        model.compile(loss="mse", optimizer=Adam(lr=0.001), metrics=['accuracy'])
+        return model
+
+    def reproduce(self, other):
+        child1 = NeatAnn(create_model=False)
+        child2 = NeatAnn(create_model=False)
+        child1.conv_layers_count = self.conv_layers_count
+        child1.dense_layers_count = other.dense_layers_count
+        child2.conv_layers_count = other.conv_layers_count
+        child2.dense_layers_count = self.dense_layers_count
+
+        child1.model = child1.create_model()
+        child2.model = child2.create_model()
+
+        return child1, child2
+
+    def mutate(self):
+        def mutate_weights(weights):
+            for i in range(len(weights)):
+                if type(weights[i]) != list:
+                    if random.random() < 0.20:
+                        weights[i] = random.random()
+                else:
+                    mutate_weights(weights[i])
+
+        for layer in self.model.layers:
+            mutate_weights(layer.get_weights())
+
+    def get_next_action(self, img_array):
+        img_array = keras.utils.normalize(img_array)
+        return np.argmax(
+            self.model.predict(
+                np.resize(img_array, default_input_shape_resized)
+            )
+        )

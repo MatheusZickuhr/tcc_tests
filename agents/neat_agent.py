@@ -5,7 +5,7 @@ from keras.models import load_model
 
 from agents import base_agent
 from agents import screen_reader
-from agents.neat_ann import Ann
+from agents.neat_ann import Ann, NeatAnn
 from bombman import Game
 from utils import Timer
 
@@ -65,7 +65,7 @@ class NeatAgent(base_agent.Agent):
     def create_population(self, size=1):
         population = []
         for i in range(size):
-            population.append(Ann())
+            population.append(NeatAnn())
 
         return population
 
@@ -156,6 +156,6 @@ class NeatAgent(base_agent.Agent):
         print 'best element with fitness {}'.format(best.fitness)
 
     def load_best_ann(self):
-        ann = Ann(is_child=True)
+        ann = NeatAnn(create_model=False)
         ann.model = load_model('neat_agent_best.h5')
         return ann
