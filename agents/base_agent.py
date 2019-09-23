@@ -1,11 +1,18 @@
 import virtual_joystick
 import agent_actions
+from bombman import Game
 
 
 class Agent:
 
     def __init__(self, game_instance=None):
         self.game_instance = game_instance
+
+        self.initialize()
+
+    def initialize(self):
+        print 'initialize not implemented'
+        pass
 
     def do_action(self, action):
         if action == agent_actions.GO_RIGHT:
@@ -43,3 +50,17 @@ class Agent:
             return None
 
         return self.game_instance.game_map.game_number
+
+    def wait_game_to_start(self):
+        print 'waiting for game to start'
+        while self.get_total_games_count() is None or self.get_current_game() is None:
+            pass
+
+    def wait_agent_can_play(self):
+        print 'waiting until agent can play'
+        while not self.is_game_running() or self.is_player_dead():
+            pass
+        print 'game started'
+
+    def is_game_running(self):
+        return True if self.game_instance.state == Game.STATE_PLAYING else False

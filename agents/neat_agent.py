@@ -138,20 +138,6 @@ class NeatAgent(base_agent.Agent):
     def has_next_element(self):
         return True if self.current_element_index + 1 < len(self.population) else False
 
-    def wait_agent_can_play(self):
-        print 'waiting until agent can play'
-        while not self.is_game_running() or self.is_player_dead():
-            pass
-        print 'game started'
-
-    def wait_game_to_start(self):
-        print 'waiting for game to start'
-        while self.get_total_games_count() is None or self.get_current_game() is None:
-            pass
-
-    def is_game_running(self):
-        return True if self.game_instance.state == Game.STATE_PLAYING else False
-
     def save_best_element(self):
         best = sorted(self.population, key=lambda x: x.fitness)[-1]
         best.model.save('neat_agent_best.h5')
