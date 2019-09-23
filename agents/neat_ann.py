@@ -165,7 +165,7 @@ class NeatAnn:
         model.add(
             Conv2D(
                 random.randint(10, 256),
-                (random.randint(1, 6), random.randint(1, 6)),
+                (random.randint(1, 4), random.randint(1, 4)),
                 input_shape=default_input_shape,
                 bias_initializer='glorot_uniform',
                 kernel_constraint=MinMaxNorm(min_value=0.0, max_value=1.0),
@@ -178,7 +178,7 @@ class NeatAnn:
             model.add(
                 Conv2D(
                     random.randint(10, 256),
-                    (random.randint(1, 6), random.randint(1, 6)),
+                    (random.randint(1, 4), random.randint(1, 4)),
                     activation=random.choice(activation_functions),
                     bias_initializer='glorot_uniform',
                     kernel_constraint=MinMaxNorm(min_value=0.0, max_value=1.0),
@@ -193,7 +193,7 @@ class NeatAnn:
 
         model.add(
             Dense(
-                len(agent_actions.possible_actions), activation=random.choice(activation_functions),
+                len(agent_actions.possible_actions), activation='sigmoid',
                 bias_initializer='glorot_uniform',
                 kernel_constraint=MinMaxNorm(min_value=0.0, max_value=1.0),
                 bias_constraint=MinMaxNorm(min_value=0.0, max_value=1.0)
@@ -230,8 +230,8 @@ class NeatAnn:
 
     def get_next_action(self, img_array):
         img_array = keras.utils.normalize(img_array)
-        return np.argmax(
-            self.model.predict(
-                np.resize(img_array, default_input_shape_resized)
-            )
-        )
+        predict_value = self.model.predict(
+            np.resize(img_array, default_input_shape_resized)
+        )[0]
+        print predict_value
+        return np.argmax(predict_value)

@@ -17,9 +17,11 @@ class NeatAgent(base_agent.Agent):
     number_of_kills = 0
 
     def start(self):
-        self.wait_game_to_start()
+        self.population = self.create_population(size=50)
 
-        self.population = self.create_population(size=int(self.get_total_games_count() / 4))
+        print 'population created'
+
+        self.wait_game_to_start()
 
         print 'neat agent started'
 

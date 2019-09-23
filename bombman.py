@@ -2072,14 +2072,14 @@ class GameMap(object):
 #  the selected map.
 
 class PlaySetup(object):
-    MAX_GAMES = 40
+    MAX_GAMES = 10000
 
     # ----------------------------------------------------------------------------
 
     def __init__(self):
         self.player_slots = [None for i in range(10)]  ##< player slots: (player_number, team_color),
         #   negative player_number = AI, slot index ~ player color index
-        self.number_of_games = 40
+        self.number_of_games = 10000
 
         # default setup, player 0 vs 3 AI players:
         self.player_slots[0] = (0, 0)
