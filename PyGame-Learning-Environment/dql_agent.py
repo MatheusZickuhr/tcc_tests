@@ -20,7 +20,7 @@ MIN_REWARD = -200  # For model save
 MEMORY_FRACTION = 0.20
 
 # Environment settings
-EPISODES = 1_000
+EPISODES = 3_000
 
 # Exploration settings
 epsilon = 1  # not a constant, going to be decayed

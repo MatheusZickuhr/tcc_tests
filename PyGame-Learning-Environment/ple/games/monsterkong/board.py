@@ -98,7 +98,7 @@ class Board(object):
         self.Walls = []
         self.Ladders = []
         self.Fireballs = []
-        self.FireballEndpoints = [OnBoard(self.IMAGES["still"], (50, 440))]
+        self.FireballEndpoints = [OnBoard(self.IMAGES["still"], (0, 440))]
         self.initializeGame()  # This initializes the game and generates our map
         self.createGroups()  # This creates the instance groups
 
@@ -267,7 +267,8 @@ class Board(object):
         for fireball in self.fireballGroup:
             fireball.continuousUpdate(self.wallGroup, self.ladderGroup)
             if fireball.checkCollision(self.playerGroup, "V"):
-                self.Fireballs.remove(fireball)
+                if fireball in self.Fireballs:
+                    self.Fireballs.remove(fireball)
                 self.Players[0].setPosition((50, 440))
                 self.score += self.rewards["negative"]
                 self.lives += -1
