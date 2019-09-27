@@ -1,21 +1,26 @@
 import cv2
 import math
 import random
+
+import numpy as np
 from keras.models import load_model
-from neat_ann import NeatAnn
+from neat_ann import NeatAnn, Ann
+from ple.games import FlappyBird
 from tqdm import tqdm
 from utils import Timer
 from ple.games.monsterkong import MonsterKong
 from ple import PLE
 
-game = MonsterKong()
+game = FlappyBird()
 p = PLE(game, display_screen=True, force_fps=True)
 p.init()
 actions = p.getActionSet()
 
 
 def get_resized_image(img):
-    return cv2.resize(img, dsize=(10, 10), interpolation=cv2.INTER_CUBIC)
+    img = cv2.resize(img, dsize=(10, 10), interpolation=cv2.INTER_CUBIC)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    return img.astype(np.float32)
 
 
 class NeatAgent:
@@ -25,13 +30,9 @@ class NeatAgent:
     number_of_kills = 0
 
     def start_training(self):
-        self.population = self.create_population(size=50)
-        generations = 50
+        self.population = self.create_population(size=100)
+        generations = 100
 
-        def calc_fitness():
-            import os
-            os.putenv('SDL_VIDEODRIVER', 'fbcon')
-            os.environ["SDL_VIDEODRIVER"] = "dummy"
         for i in tqdm(range(generations)):
             for e in tqdm(self.population):
                 p.reset_game()
@@ -43,7 +44,7 @@ class NeatAgent:
                     e.fitness += reward
                     done = p.game_over()
 
-        self.crossover_mutate_replace()
+            self.crossover_mutate_replace()
         print('toda a populacao jogou uma vez!')
         self.save_best_element()
 
@@ -61,7 +62,7 @@ class NeatAgent:
     def create_population(self, size=1):
         population = []
         for i in range(size):
-            population.append(NeatAnn(possible_actions=actions))
+            population.append(Ann(possible_actions=actions))
 
         return population
 
@@ -134,10 +135,14 @@ class NeatAgent:
 
     def save_best_element(self):
         best = sorted(self.population, key=lambda x: x.fitness)[-1]
-        best.model.save('neat_agent_best.h5')
+        best.model.save('neat_agent_best.model')
         print('best element with fitness {}'.format(best.fitness))
 
     def load_best_ann(self):
         ann = NeatAnn(create_model=False)
         ann.model = load_model('neat_agent_best.h5')
         return ann
+
+
+agent = NeatAgent()
+agent.start_training()

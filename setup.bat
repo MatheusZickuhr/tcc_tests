@@ -1,1 +1,1 @@
-pip install numpy && pip install keras && pip install opencv-python && pip install pillow && pip install pygame && pip install tqdm && pip install cntk && pip install cntk-gpu
+pip install numpy && pip install keras && pip install opencv-python && pip install pillow && pip install pygame && pip install tqdm && cd PyGame-Learning-Environment && pip install -e . && cd ..
