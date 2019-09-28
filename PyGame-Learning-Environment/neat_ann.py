@@ -7,7 +7,6 @@ from keras.layers import Dense, Conv2D, Flatten, MaxPooling2D, Dropout
 from keras.models import Sequential
 from keras.optimizers import Adam
 
-
 default_input_shape = (10, 10, 3)
 default_input_shape_resized = (1, *default_input_shape)
 
@@ -123,7 +122,6 @@ class Ann:
                 elif type(parent_layer) == Flatten:
                     child.model.add(Flatten())
                 elif type(parent_layer) == Dense:
-                    print(parent_layer.units)
                     child.model.add(
                         Dense(
                             parent_layer.units, input_shape=parent_layer.input_shape,

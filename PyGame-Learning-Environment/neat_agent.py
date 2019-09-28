@@ -1,7 +1,12 @@
+import os
+
+os.putenv('SDL_VIDEODRIVER', 'fbcon')
+os.environ["SDL_VIDEODRIVER"] = "dummy"
+
 import cv2
 import math
 import random
-
+import tensorflow as tf
 import numpy as np
 from keras.models import load_model
 from neat_ann import NeatAnn, Ann
@@ -10,6 +15,8 @@ from tqdm import tqdm
 from utils import Timer
 from ple.games.monsterkong import MonsterKong
 from ple import PLE
+
+tf.set_random_seed(1)
 
 game = FlappyBird()
 p = PLE(game, display_screen=True, force_fps=True)
@@ -30,11 +37,11 @@ class NeatAgent:
     number_of_kills = 0
 
     def start_training(self):
-        self.population = self.create_population(size=100)
-        generations = 100
+        self.population = self.create_population(size=50)
+        generations = 1000
 
         for i in tqdm(range(generations)):
-            for e in tqdm(self.population):
+            for e in self.population:
                 p.reset_game()
                 done = False
                 while not done:
@@ -45,7 +52,6 @@ class NeatAgent:
                     done = p.game_over()
 
             self.crossover_mutate_replace()
-        print('toda a populacao jogou uma vez!')
         self.save_best_element()
 
     def play_best(self):
@@ -94,8 +100,6 @@ class NeatAgent:
 
                     break
 
-        print('len elementos selecionados = {}'.format(len(selected_elements)))
-
         children = []
         for i in range(0, len(selected_elements), 2):
             element1 = selected_elements[i]
@@ -111,7 +115,6 @@ class NeatAgent:
             self.population[i] = children[i]
 
     def calculate_fitness(self, element=None, time_played=0, time_alive=0):
-        print('fitness calc started ')
         fitness = 100 if self.get_player_instance().get_wins() > self.number_of_wins else 1
         fitness *= time_alive
         kills_dif = self.get_player_instance().get_kills() - self.number_of_kills
@@ -123,12 +126,6 @@ class NeatAgent:
 
         element.fitness = fitness
 
-        print("fiteness {}".format(fitness))
-
-    def get_next_element(self):
-        self.current_element_index += 1
-        print('jogando agora elemento {}'.format(str(self.current_element_index)))
-        return self.population[self.current_element_index]
 
     def has_next_element(self):
         return True if self.current_element_index + 1 < len(self.population) else False
@@ -136,7 +133,6 @@ class NeatAgent:
     def save_best_element(self):
         best = sorted(self.population, key=lambda x: x.fitness)[-1]
         best.model.save('neat_agent_best.model')
-        print('best element with fitness {}'.format(best.fitness))
 
     def load_best_ann(self):
         ann = NeatAnn(create_model=False)

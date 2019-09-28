@@ -190,4 +190,4 @@ for episode in tqdm(range(1, EPISODES + 1), ascii=True, unit='episodes'):
         epsilon *= EPSILON_DECAY
         epsilon = max(MIN_EPSILON, epsilon)
 
-agent.model.save('my_model.model')
+agent.model.save('dql_fb.model')
