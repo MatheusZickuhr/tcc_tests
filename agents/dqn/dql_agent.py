@@ -1,3 +1,4 @@
+import keras
 from keras.engine.saving import load_model
 import cv2
 import numpy as np
@@ -80,10 +81,10 @@ class DQNAgent:
 
         minibatch = random.sample(self.replay_memory, self.minibatch_size)
 
-        current_states = np.array([transition[0] for transition in minibatch]) / 255
+        current_states = np.array([transition[0] for transition in minibatch])
         current_qs_list = self.model.predict(current_states)
 
-        new_current_states = np.array([transition[3] for transition in minibatch]) / 255
+        new_current_states = np.array([transition[3] for transition in minibatch])
         future_qs_list = self.target_model.predict(new_current_states)
 
         X = []
@@ -104,7 +105,7 @@ class DQNAgent:
             y.append(current_qs)
 
         self.model.fit(
-            np.array(X) / 255, np.array(y),
+            np.array(X), np.array(y),
             batch_size=self.minibatch_size,
             verbose=0,
             shuffle=False,
@@ -119,17 +120,17 @@ class DQNAgent:
             self.target_update_counter = 0
 
     def get_qs(self, state):
-        return self.model.predict(np.array(state).reshape(-1, *state.shape) / 255)[0]
+        return self.model.predict(np.array([state]))
 
-    def get_resized_image(self, img):
+    def resize_and_normalize_img(self, img):
         img = cv2.resize(img, dsize=self.input_shape[:2], interpolation=cv2.INTER_CUBIC)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        return img.astype(np.float32)
+        return keras.utils.normalize(img.astype(np.float32))
 
     def fit(self, episodes=20_000, save_model_as='model_name.model'):
         for episode in tqdm(range(1, episodes + 1), ascii=True, unit='episodes'):
             self.env.reset_game()
-            current_state = self.get_resized_image(self.env.getScreenRGB())
+            current_state = self.resize_and_normalize_img(self.env.getScreenRGB())
 
             done = False
             while not done:
@@ -137,7 +138,7 @@ class DQNAgent:
                     else random.randint(0, self.n_actions - 1)
                 action = self.env.getActionSet()[action_index]
                 reward = self.env.act(action)
-                new_state = self.get_resized_image(self.env.getScreenRGB())
+                new_state = self.resize_and_normalize_img(self.env.getScreenRGB())
                 done = self.env.game_over()
                 self.update_replay_memory((current_state, action_index, reward, new_state, done))
                 self.train(done)
