@@ -134,7 +134,7 @@ class DQNAgent:
             done = False
             while not done:
                 action_index = np.argmax(self.get_qs(current_state)) if np.random.random() > self.epsilon \
-                    else action_index = random.randint(0, self.n_actions - 1)
+                    else random.randint(0, self.n_actions - 1)
                 action = self.env.getActionSet()[action_index]
                 reward = self.env.act(action)
                 new_state = self.get_resized_image(self.env.getScreenRGB())
