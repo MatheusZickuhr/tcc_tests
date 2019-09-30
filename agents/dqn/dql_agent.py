@@ -27,7 +27,6 @@ class DQNAgent:
             model_path=None
     ):
         self.epsilon = 1
-        self.epsilon_decay = 0.99975
         self.min_epsilon = 0.001
         self.save_model_every = 500
         self.input_shape = input_shape
@@ -37,6 +36,7 @@ class DQNAgent:
         self.discount = discount
         self.update_target_every = update_target_every
         self.env = env
+        self.env_input_shape = env.getScreenRGB().shape
         self.model = self.create_model() if model_path is None else load_model(model_path)
         self.target_model = self.create_model() if model_path is None else load_model(model_path)
         self.target_model.set_weights(self.model.get_weights())
@@ -46,15 +46,12 @@ class DQNAgent:
     def create_model(self):
         model = Sequential()
 
-        model.add(Conv2D(256, (3, 3), input_shape=self.input_shape,
-                         use_bias=True))
-        # model.add(BatchNormalization())
+        model.add(Conv2D(256, (3, 3), input_shape=self.input_shape if self.input_shape else self.env_input_shape))
         model.add(Activation('relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
         model.add(Dropout(0.2))
 
         model.add(Conv2D(256, (3, 3), use_bias=True))
-        # model.add(BatchNormalization())
         model.add(Activation('relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
         model.add(Dropout(0.2))
@@ -62,11 +59,9 @@ class DQNAgent:
         model.add(Flatten())
 
         model.add(Dense(64, use_bias=True))
-        # model.add(BatchNormalization())
         model.add(Activation('relu'))
 
         model.add(Dense(self.n_actions, use_bias=True))
-        # model.add(BatchNormalization())
         model.add(Activation('linear'))
         model.compile(loss="mse", optimizer=Adam(lr=0.001), metrics=['accuracy'])
         return model
@@ -123,11 +118,13 @@ class DQNAgent:
         return self.model.predict(np.array([state]))
 
     def resize_and_normalize_img(self, img):
-        img = cv2.resize(img, dsize=self.input_shape[:2], interpolation=cv2.INTER_CUBIC)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        if self.input_shape:
+            img = cv2.resize(img, dsize=self.input_shape[:2], interpolation=cv2.INTER_CUBIC)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         return keras.utils.normalize(img.astype(np.float32))
 
     def fit(self, episodes=20_000, save_model_as='model_name.model'):
+        epsilon_decay = 1 - (5 / episodes)
         for episode in tqdm(range(1, episodes + 1), ascii=True, unit='episodes'):
             self.env.reset_game()
             current_state = self.resize_and_normalize_img(self.env.getScreenRGB())
@@ -145,7 +142,7 @@ class DQNAgent:
                 current_state = new_state
 
             if self.epsilon > self.min_epsilon:
-                self.epsilon *= self.epsilon_decay
+                self.epsilon *= epsilon_decay
                 self.epsilon = max(self.min_epsilon, self.epsilon)
 
             if episode % self.save_model_every == 0:
