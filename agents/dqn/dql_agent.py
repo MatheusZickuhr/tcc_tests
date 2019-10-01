@@ -6,7 +6,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, Conv2D, MaxPooling2D, Activation, Flatten
 from keras.optimizers import Adam
 from collections import deque
-from tqdm import tqdm
+from tqdm.auto import tqdm
 import random
 import tensorflow as tf
 

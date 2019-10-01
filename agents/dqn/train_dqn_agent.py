@@ -6,5 +6,5 @@ game = Catcher()
 env = PLE(game, display_screen=False, force_fps=True)
 env.init()
 
-agent = DQNAgent(env=env, input_shape=(10, 10, 3))
-agent.fit(episodes=30_000, save_model_as='models\\catcher_model.model')
+agent = DQNAgent(env=env, input_shape=(10, 10, 3), model_path='models\\catcher_model.model')
+agent.fit(episodes=10_000, save_model_as='models\\catcher_model.model')
