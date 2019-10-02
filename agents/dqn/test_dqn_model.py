@@ -1,11 +1,9 @@
-import random
-
 import cv2
 import keras
 import numpy as np
 from keras.engine.saving import load_model
 from ple import PLE
-from ple.games import FlappyBird, Catcher
+from ple.games import Catcher
 
 input_shape = (10, 10, 3)
 
@@ -28,4 +26,9 @@ while True:
         env.reset_game()
     state = resize_img(env.getScreenRGB())
     action = np.argmax(model.predict(np.array([state])))
-    env.act(actions[action])
+    reward = env.act(actions[action])
+
+    if reward == 1:
+        print('pegou')
+    elif reward == -1:
+        print('errou')

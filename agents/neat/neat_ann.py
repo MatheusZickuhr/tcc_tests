@@ -16,8 +16,8 @@ activation_functions = ['softmax', 'elu', 'selu', 'softplus', 'softsign', 'relu'
 
 class Ann:
 
-    def __init__(self, create_model=True, possible_actions=None):
-        self.possible_actions = possible_actions
+    def __init__(self, create_model=True, n_actions=None):
+        self.n_actions = n_actions
         self.fitness = 0
         self.dense_layers = list()
         self.model = self.create_model() if create_model else None
@@ -65,7 +65,7 @@ class Ann:
 
         model.add(
             Dense(
-                len(self.possible_actions), activation='linear', bias_initializer='random_normal',
+                self.n_actions, activation='linear', bias_initializer='random_normal',
                 kernel_constraint=MinMaxNorm(min_value=0.0, max_value=1.0),
                 bias_constraint=MinMaxNorm(min_value=0.0, max_value=1.0)
             )
