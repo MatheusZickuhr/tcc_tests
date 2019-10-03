@@ -7,8 +7,6 @@ from keras.layers import Dense, Conv2D, Flatten, MaxPooling2D, Dropout
 from keras.models import Sequential
 from keras.optimizers import Adam
 
-default_input_shape = (10, 10, 3)
-default_input_shape_resized = (1, *default_input_shape)
 
 activation_functions = ['softmax', 'elu', 'selu', 'softplus', 'softsign', 'relu', 'tanh', 'sigmoid', 'hard_sigmoid',
                         'exponential', 'linear']
@@ -16,7 +14,8 @@ activation_functions = ['softmax', 'elu', 'selu', 'softplus', 'softsign', 'relu'
 
 class Ann:
 
-    def __init__(self, create_model=True, n_actions=None):
+    def __init__(self, create_model=True, n_actions=None, input_shape=None):
+        self.input_shape = input_shape
         self.n_actions = n_actions
         self.fitness = 0
         self.dense_layers = list()
@@ -29,7 +28,7 @@ class Ann:
             Conv2D(
                 128,
                 (3, 3),
-                input_shape=default_input_shape,
+                input_shape=self.input_shape,
                 activation='relu',
                 bias_initializer='glorot_uniform',
                 kernel_constraint=MinMaxNorm(min_value=0.0, max_value=1.0),
@@ -43,7 +42,6 @@ class Ann:
             Conv2D(
                 128,
                 (3, 3),
-                input_shape=default_input_shape,
                 activation='relu',
                 bias_initializer='glorot_uniform',
                 kernel_constraint=MinMaxNorm(min_value=0.0, max_value=1.0),
@@ -76,10 +74,9 @@ class Ann:
         return model
 
     def get_next_action(self, img_array):
-        img_array = keras.utils.normalize(img_array)
         return np.argmax(
             self.model.predict(
-                np.resize(img_array, default_input_shape_resized)
+                np.array([img_array])
             )
         )
 
@@ -97,7 +94,7 @@ class Ann:
                             Conv2D(
                                 parent_layer.filters,
                                 parent_layer.kernel_size,
-                                input_shape=default_input_shape,
+                                input_shape=self.input_shape,
                                 activation=parent_layer.activation,
                                 weights=parent_layer.get_weights(),
                                 kernel_constraint=MinMaxNorm(min_value=0.0, max_value=1.0),
