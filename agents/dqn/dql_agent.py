@@ -24,8 +24,10 @@ class DQNAgent:
             discount=0.99,
             update_target_every=5,
             env=None,
-            model_path=None
+            model_path=None,
+            use_pixels_input=False
     ):
+        self.use_pixels_input = use_pixels_input
         self.epsilon = 1
         self.min_epsilon = 0.001
         self.save_model_every = 500
@@ -36,17 +38,22 @@ class DQNAgent:
         self.discount = discount
         self.update_target_every = update_target_every
         self.env = env
-        self.env_input_shape = env.getScreenRGB().shape
-        self.model = self.create_model() if model_path is None else load_model(model_path)
-        self.target_model = self.create_model() if model_path is None else load_model(model_path)
+        if self.use_pixels_input:
+            self.model = self.create_conv_model() if model_path is None else load_model(model_path)
+            self.target_model = self.create_conv_model() if model_path is None else load_model(model_path)
+            self.input_shape = env.getScreenRGB().shape if self.input_shape is None else self.input_shape
+        else:
+            self.model = self.create_dense_model() if model_path is None else load_model(model_path)
+            self.target_model = self.create_dense_model() if model_path is None else load_model(model_path)
+            self.input_shape = len(env.getGameState().keys()) if self.input_shape is None else self.input_shape
         self.target_model.set_weights(self.model.get_weights())
         self.replay_memory = deque(maxlen=replay_memory_size)
         self.target_update_counter = 0
 
-    def create_model(self):
+    def create_conv_model(self):
         model = Sequential()
 
-        model.add(Conv2D(256, (3, 3), input_shape=self.input_shape if self.input_shape else self.env_input_shape))
+        model.add(Conv2D(256, (3, 3), input_shape=self.input_shape))
         model.add(Activation('relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
         model.add(Dropout(0.2))
@@ -117,25 +124,55 @@ class DQNAgent:
     def get_qs(self, state):
         return self.model.predict(np.array([state]))
 
+    def normalize_game_state(self, state):
+        normalized_state = []
+        for key in sorted(state.keys()):
+            normalized_state.append(state[key])
+        return keras.utils.normalize(normalized_state).reshape(self.input_shape)
+
+    def create_dense_model(self):
+        model = Sequential()
+        model.add(Dense(input_shape=self.input_shape, units=128))
+        model.add(Dense(units=128))
+        model.add(Dense(self.n_actions, use_bias=True))
+        model.add(Activation('linear'))
+        model.compile(loss="mse", optimizer=Adam(lr=0.001), metrics=['accuracy'])
+        return model
+
     def resize_and_normalize_img(self, img):
         if self.input_shape:
             img = cv2.resize(img, dsize=self.input_shape[:2], interpolation=cv2.INTER_CUBIC)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         return keras.utils.normalize(img.astype(np.float32))
 
-    def fit(self, episodes=20_000, save_model_as='model_name.model'):
-        epsilon_decay = 1 - (5 / episodes)
-        for episode in tqdm(range(1, episodes + 1), ascii=True, unit='episodes'):
-            self.env.reset_game()
-            current_state = self.resize_and_normalize_img(self.env.getScreenRGB())
+    def get_current_env_state(self):
+        if self.use_pixels_input:
+            return self.resize_and_normalize_img(self.env.getScreenRGB())
+        else:
+            return self.normalize_game_state(self.env.getGameState())
 
+    def recalc_epsilon(self, epsilon_decay, resume_from_episode):
+        for i in range(resume_from_episode):
+            if self.epsilon > self.min_epsilon:
+                self.epsilon *= epsilon_decay
+                self.epsilon = max(self.min_epsilon, self.epsilon)
+
+    def fit(self, episodes=20_000, save_model_as='model_name.model', resume_from_episode=0):
+        epsilon_decay = 1 - (5 / episodes)
+        self.recalc_epsilon(epsilon_decay, resume_from_episode)
+        for episode in tqdm(range(1, episodes + 1), ascii=True, unit='episodes'):
+            if episode < resume_from_episode:
+                continue
+
+            self.env.reset_game()
+            current_state = self.get_current_env_state()
             done = False
             while not done:
                 action_index = np.argmax(self.get_qs(current_state)) if np.random.random() > self.epsilon \
                     else random.randint(0, self.n_actions - 1)
                 action = self.env.getActionSet()[action_index]
                 reward = self.env.act(action)
-                new_state = self.resize_and_normalize_img(self.env.getScreenRGB())
+                new_state = self.get_current_env_state()
                 done = self.env.game_over()
                 self.update_replay_memory((current_state, action_index, reward, new_state, done))
                 self.train(done)
