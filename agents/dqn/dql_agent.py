@@ -141,7 +141,7 @@ class DQNAgent:
 
     def resize_and_normalize_img(self, img):
         if self.input_shape:
-            img = cv2.resize(img, dsize=self.input_shape[:2], interpolation=cv2.INTER_CUBIC)
+            img = cv2.resize(img, self.input_shape[:2], interpolation=cv2.INTER_AREA)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         return keras.utils.normalize(img.astype(np.float32))
 
