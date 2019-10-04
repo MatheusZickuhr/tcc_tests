@@ -63,15 +63,17 @@ total_rewards = 0
 while True:
     if env.game_over():
         env.reset_game()
+    r = env.act(random.choice(actions))
+    print(r)
     # state = normalize_game_state(env.getGameState())
     # action = np.argmax(model.predict(np.array([state])))
-    reward = env.act(random.choice(actions))
-    cv2.imshow('teste', image_resize(env.getScreenRGB(), height=50))
+    # reward = env.act(random.choice(actions))
+    # cv2.imshow('teste', image_resize(env.getScreenRGB(), height=50))
 
-    if reward == 1:
-        positive_rewards += 1
-    if reward == -1 or reward == 1:
-        total_rewards += 1
-
-    if total_rewards > 0:
-        print(positive_rewards / total_rewards)
+    # if reward == 1:
+    #     positive_rewards += 1
+    # if reward == -1 or reward == 1:
+    #     total_rewards += 1
+    #
+    # if total_rewards > 0:
+    #     print(positive_rewards / total_rewards)

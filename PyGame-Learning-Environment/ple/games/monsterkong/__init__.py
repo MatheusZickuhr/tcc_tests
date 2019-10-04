@@ -36,6 +36,8 @@ class MonsterKong(PyGameWrapper):
 
         self.rewards = {
             "positive": 5,
+            "ladder_up": 1,
+            "ladder_down": -1,
             "win": 50,
             "negative": -25,
             "tick": 0
@@ -190,6 +192,7 @@ class MonsterKong(PyGameWrapper):
                         "up"] and self.newGame.Players[0].onLadder:
                     self.newGame.Players[0].updateWH(self.IMAGES["still"], "V",
                                                      -self.newGame.Players[0].getSpeed() / 2, 15, 15)
+                    self.newGame.score += self.rewards['ladder_up']
                     # if len(self.newGame.Players[0].checkCollision(self.ladderGroup)) == 0 or len(
                     #         self.newGame.Players[0].checkCollision(self.wallGroup)) != 0:
                     #     self.newGame.Players[0].updateWH(self.IMAGES["still"], "V",
@@ -200,6 +203,7 @@ class MonsterKong(PyGameWrapper):
                         "down"] and self.newGame.Players[0].onLadder:
                     self.newGame.Players[0].updateWH(self.IMAGES["still"], "V",
                                                      self.newGame.Players[0].getSpeed() / 2, 15, 15)
+                    self.newGame.score += self.rewards['ladder_down']
 
         # Update the player's position and process his jump if he is jumping
         self.newGame.Players[0].continuousUpdate(
