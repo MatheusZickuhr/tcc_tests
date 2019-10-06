@@ -1,3 +1,5 @@
+import math
+
 __author__ = 'Batchu Vishal'
 import pygame
 import sys
@@ -192,7 +194,11 @@ class MonsterKong(PyGameWrapper):
                         "up"] and self.newGame.Players[0].onLadder:
                     self.newGame.Players[0].updateWH(self.IMAGES["still"], "V",
                                                      -self.newGame.Players[0].getSpeed() / 2, 15, 15)
-                    self.newGame.score += self.rewards['ladder_up']
+                    if not self.newGame.Players[0].checkCollision(self.wallGroup):
+                        self.newGame.score += self.rewards['ladder_up']
+                    else:
+                        # if tried to go up but hit the wall
+                        self.newGame.score += self.rewards['ladder_down']
                     # if len(self.newGame.Players[0].checkCollision(self.ladderGroup)) == 0 or len(
                     #         self.newGame.Players[0].checkCollision(self.wallGroup)) != 0:
                     #     self.newGame.Players[0].updateWH(self.IMAGES["still"], "V",
@@ -232,3 +238,53 @@ class MonsterKong(PyGameWrapper):
         # Update all the monsters
         for enemy in self.newGame.Enemies:
             enemy.continuousUpdate(self.wallGroup, self.ladderGroup)
+
+    def getGameState(self):
+        def dist(game_obj1, game_obj2):
+            return math.sqrt(
+                math.pow(game_obj2.getPosition()[0] - game_obj1.getPosition()[0], 2)
+                + math.pow(game_obj2.getPosition()[1] - game_obj1.getPosition()[1], 2)
+            )
+
+        def get_closest(game_obj, game_objs):
+            return sorted(game_objs, key=lambda x: dist(x, game_obj))[0]
+
+        closest_fireball = get_closest(self.newGame.Players[0], self.newGame.Fireballs)
+        fireball = {
+            'fireball_x_position': closest_fireball.getPosition()[0],
+            'fireball_y_position': closest_fireball.getPosition()[1],
+        }
+
+        closest_enemy = get_closest(self.newGame.Players[0], self.newGame.Enemies)
+        enemy = {
+            'enemy_x_position': closest_enemy.getPosition()[0],
+            'enemy_y_position': closest_enemy.getPosition()[1]
+        }
+
+        closest_allie = get_closest(self.newGame.Players[0], self.newGame.Allies)
+        allie = {
+            'allie_x_position': closest_allie.getPosition()[0],
+            'allie_y_position': closest_allie.getPosition()[1]
+        }
+
+        closest_coin = get_closest(self.newGame.Players[0], self.newGame.Coins)
+        coin = {
+            'coin_x_position': closest_coin.getPosition()[0],
+            'coin_y_position': closest_coin.getPosition()[1]
+        }
+
+        closest_ladder = get_closest(self.newGame.Players[0], self.newGame.Ladders)
+        ladder = {
+            'ladder_x_position': closest_ladder.getPosition()[0],
+            'ladder_y_position': closest_ladder.getPosition()[1]
+        }
+
+        return {
+            'player_x_position': self.newGame.Players[0].getPosition()[0],
+            'player_y_position': self.newGame.Players[0].getPosition()[1],
+            **fireball,
+            **enemy,
+            **allie,
+            **coin,
+            **ladder
+        }
