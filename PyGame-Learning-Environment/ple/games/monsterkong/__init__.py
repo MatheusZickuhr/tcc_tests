@@ -279,6 +279,12 @@ class MonsterKong(PyGameWrapper):
             'ladder_y_position': closest_ladder.getPosition()[1]
         }
 
+        closest_wall = get_closest(self.newGame.Players[0], self.newGame.Walls)
+        wall = {
+            'wall_x_position': closest_wall.getPosition()[0],
+            'wall_y_position': closest_wall.getPosition()[1]
+        }
+
         return {
             'player_x_position': self.newGame.Players[0].getPosition()[0],
             'player_y_position': self.newGame.Players[0].getPosition()[1],
@@ -286,5 +292,6 @@ class MonsterKong(PyGameWrapper):
             **enemy,
             **allie,
             **coin,
-            **ladder
+            **ladder,
+            **wall
         }
