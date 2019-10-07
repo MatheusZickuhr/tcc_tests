@@ -1,3 +1,0 @@
-gpu_memery_usage_avg=0.1748046875
-gpu_load_avg=0.02
-time(seconds)=0.0010006427764892578

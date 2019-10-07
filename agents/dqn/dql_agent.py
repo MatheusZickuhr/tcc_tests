@@ -1,3 +1,5 @@
+import time
+
 import keras
 from keras.engine.saving import load_model
 import cv2
@@ -163,10 +165,12 @@ class DQNAgent:
         with open(path, 'a') as file:
             file.write(f'{episode},{reward}\n')
 
-    def fit(self, episodes=20_000, save_model_as='model_name.model', resume_from_episode=0):
+    def fit(self, episodes=20_000, save_model_as='model_name.model', resume_from_episode=0, episode_time_limit=5 * 60):
         epsilon_decay = 1 - (5 / episodes)
         self.recalc_epsilon(epsilon_decay, resume_from_episode)
         for episode in tqdm(range(1, episodes + 1), ascii=True, unit='episodes'):
+            episode_start_time = time.time()
+
             if episode < resume_from_episode:
                 continue
 
@@ -180,7 +184,7 @@ class DQNAgent:
                 action = self.env.getActionSet()[action_index]
                 reward = self.env.act(action)
                 new_state = self.get_current_env_state()
-                done = self.env.game_over()
+                done = self.env.game_over() or time.time() - episode_start_time > episode_time_limit
                 self.update_replay_memory((current_state, action_index, reward, new_state, done))
                 self.train(done)
                 current_state = new_state
@@ -194,4 +198,3 @@ class DQNAgent:
                 self.model.save(save_model_as)
                 if self.reward_log_path:
                     self.log_reward(path=self.reward_log_path, episode=episode, reward=episode_reward)
-

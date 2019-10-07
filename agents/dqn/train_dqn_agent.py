@@ -8,9 +8,9 @@ game = MonsterKong()
 env = PLE(game, display_screen=True, force_fps=True)
 env.init()
 
-log = SRULogger(file_path='logs\\log.txt', log_every_seconds=60)
+log = SRULogger(file_path='logs\\mk_1_resources_usage_log.txt', log_every_seconds=10 * 60)
 
-agent = DQNAgent(env=env, use_pixels_input=True, input_shape=(30, 30, 3), reward_log_path='logs\\teste_reward_log.csv')
-agent.fit(episodes=3, save_model_as='models\\teste.model')
+agent = DQNAgent(env=env, input_shape=(14,), reward_log_path='logs\\mk_1_reward_log.csv')
+agent.fit(episodes=20_000, save_model_as='models\\mk_1.model')
 
 log.finish()

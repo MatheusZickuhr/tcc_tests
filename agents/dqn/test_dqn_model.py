@@ -35,4 +35,4 @@ while True:
         env.reset_game()
     r = env.act(None)
 
-    print(env.getGameState())
+    print(len(env.getGameState().keys()))

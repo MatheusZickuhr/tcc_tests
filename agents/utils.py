@@ -20,7 +20,6 @@ class SRULogger:
         self.finished = True
 
     def keep_logging(self):
-        gpu = GPUtil.getGPUs()[0]
         logged_times = 1
         total_gpu_memory_usage = 0
         total_gpu_load = 0
@@ -29,13 +28,14 @@ class SRULogger:
         process = psutil.Process(os.getpid())
         start_time = time.time()
         while not self.finished:
-            total_gpu_memory_usage += gpu.memoryUsed / gpu.memoryTotal
-            total_gpu_load += gpu.load
+            gpu_load, gpu_mem_used = GPUtil.showUtilization()
+            total_gpu_memory_usage += gpu_mem_used
+            total_gpu_load += gpu_load
             total_cpu_load += psutil.cpu_percent()
             total_memory_usage += process.memory_info().rss / 1024 / 1024  # megabytes
             with open(self.file_path, 'w+') as file:
                 file.write(
-                    f"""gpu_memery_usage_avg = {total_gpu_memory_usage / logged_times}
+                    f"""gpu_memory_usage_avg = {total_gpu_memory_usage / logged_times}
                     gpu_load_avg = {total_gpu_load / logged_times}
                     cpu_load_avg = {total_cpu_load / logged_times}
                     memory_usage_avg = {total_memory_usage / logged_times}

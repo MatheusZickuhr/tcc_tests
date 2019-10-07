@@ -5,8 +5,8 @@ import pygame
 import sys
 from pygame.constants import K_a, K_d, K_SPACE, K_w, K_s, QUIT, KEYDOWN
 from .board import Board
-#from ..base import base
-#from ple.games import base
+# from ..base import base
+# from ple.games import base
 from ple.games.base.pygamewrapper import PyGameWrapper
 import numpy as np
 import os
@@ -141,7 +141,7 @@ class MonsterKong(PyGameWrapper):
                     # Set the player to move up
                     self.direction = 2
                     if self.newGame.Players[
-                            0].isJumping == 0 and self.wallsCollidedBelow:
+                        0].isJumping == 0 and self.wallsCollidedBelow:
                         # We can make the player jump and set his
                         # currentJumpSpeed
                         self.newGame.Players[0].isJumping = 1
@@ -191,7 +191,7 @@ class MonsterKong(PyGameWrapper):
 
                 # If we are on a ladder, then we can move up
                 if event.key == self.actions[
-                        "up"] and self.newGame.Players[0].onLadder:
+                    "up"] and self.newGame.Players[0].onLadder:
                     self.newGame.Players[0].updateWH(self.IMAGES["still"], "V",
                                                      -self.newGame.Players[0].getSpeed() / 2, 15, 15)
                     if not self.newGame.Players[0].checkCollision(self.wallGroup):
@@ -206,7 +206,7 @@ class MonsterKong(PyGameWrapper):
 
                 # If we are on a ladder, then we can move down
                 if event.key == self.actions[
-                        "down"] and self.newGame.Players[0].onLadder:
+                    "down"] and self.newGame.Players[0].onLadder:
                     self.newGame.Players[0].updateWH(self.IMAGES["still"], "V",
                                                      self.newGame.Players[0].getSpeed() / 2, 15, 15)
                     self.newGame.score += self.rewards['ladder_down']
@@ -247,42 +247,45 @@ class MonsterKong(PyGameWrapper):
             )
 
         def get_closest(game_obj, game_objs):
-            return sorted(game_objs, key=lambda x: dist(x, game_obj))[0]
+            if len(game_objs) > 0:
+                return sorted(game_objs, key=lambda x: dist(x, game_obj))[0].getPosition()
+            else:
+                return 0.0, 0.0
 
         closest_fireball = get_closest(self.newGame.Players[0], self.newGame.Fireballs)
         fireball = {
-            'fireball_x_position': closest_fireball.getPosition()[0],
-            'fireball_y_position': closest_fireball.getPosition()[1],
+            'fireball_x_position': closest_fireball[0],
+            'fireball_y_position': closest_fireball[1],
         }
 
         closest_enemy = get_closest(self.newGame.Players[0], self.newGame.Enemies)
         enemy = {
-            'enemy_x_position': closest_enemy.getPosition()[0],
-            'enemy_y_position': closest_enemy.getPosition()[1]
+            'enemy_x_position': closest_enemy[0],
+            'enemy_y_position': closest_enemy[1]
         }
 
         closest_allie = get_closest(self.newGame.Players[0], self.newGame.Allies)
         allie = {
-            'allie_x_position': closest_allie.getPosition()[0],
-            'allie_y_position': closest_allie.getPosition()[1]
+            'allie_x_position': closest_allie[0],
+            'allie_y_position': closest_allie[1]
         }
 
         closest_coin = get_closest(self.newGame.Players[0], self.newGame.Coins)
         coin = {
-            'coin_x_position': closest_coin.getPosition()[0],
-            'coin_y_position': closest_coin.getPosition()[1]
+            'coin_x_position': closest_coin[0],
+            'coin_y_position': closest_coin[1]
         }
 
         closest_ladder = get_closest(self.newGame.Players[0], self.newGame.Ladders)
         ladder = {
-            'ladder_x_position': closest_ladder.getPosition()[0],
-            'ladder_y_position': closest_ladder.getPosition()[1]
+            'ladder_x_position': closest_ladder[0],
+            'ladder_y_position': closest_ladder[1]
         }
 
         closest_wall = get_closest(self.newGame.Players[0], self.newGame.Walls)
         wall = {
-            'wall_x_position': closest_wall.getPosition()[0],
-            'wall_y_position': closest_wall.getPosition()[1]
+            'wall_x_position': closest_wall[0],
+            'wall_y_position': closest_wall[1]
         }
 
         return {
