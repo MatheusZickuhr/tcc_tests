@@ -1,3 +1,5 @@
+import time
+
 import keras
 from keras.engine.saving import load_model
 import cv2
@@ -25,8 +27,10 @@ class DQNAgent:
             update_target_every=5,
             env=None,
             model_path=None,
+            reward_log_path=None,
             use_pixels_input=False
     ):
+        self.reward_log_path = reward_log_path
         self.use_pixels_input = use_pixels_input
         self.epsilon = 1
         self.min_epsilon = 0.001
@@ -157,13 +161,20 @@ class DQNAgent:
                 self.epsilon *= epsilon_decay
                 self.epsilon = max(self.min_epsilon, self.epsilon)
 
-    def fit(self, episodes=20_000, save_model_as='model_name.model', resume_from_episode=0):
+    def log_reward(self, path, episode=0, reward=0):
+        with open(path, 'a') as file:
+            file.write(f'{episode},{reward}\n')
+
+    def fit(self, episodes=20_000, save_model_as='model_name.model', resume_from_episode=0, episode_time_limit=5 * 60):
         epsilon_decay = 1 - (5 / episodes)
         self.recalc_epsilon(epsilon_decay, resume_from_episode)
         for episode in tqdm(range(1, episodes + 1), ascii=True, unit='episodes'):
+            episode_start_time = time.time()
+
             if episode < resume_from_episode:
                 continue
 
+            episode_reward = 0
             self.env.reset_game()
             current_state = self.get_current_env_state()
             done = False
@@ -173,16 +184,17 @@ class DQNAgent:
                 action = self.env.getActionSet()[action_index]
                 reward = self.env.act(action)
                 new_state = self.get_current_env_state()
-                done = self.env.game_over()
+                done = self.env.game_over() or time.time() - episode_start_time > episode_time_limit
                 self.update_replay_memory((current_state, action_index, reward, new_state, done))
                 self.train(done)
                 current_state = new_state
+                episode_reward += reward
 
             if self.epsilon > self.min_epsilon:
                 self.epsilon *= epsilon_decay
                 self.epsilon = max(self.min_epsilon, self.epsilon)
 
-            if episode % self.save_model_every == 0:
+            if episode % self.save_model_every == 0 or episode == 1 or episode == episodes:
                 self.model.save(save_model_as)
-
-        self.model.save(save_model_as)
+                if self.reward_log_path:
+                    self.log_reward(path=self.reward_log_path, episode=episode, reward=episode_reward)
