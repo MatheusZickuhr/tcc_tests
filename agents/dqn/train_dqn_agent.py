@@ -5,7 +5,7 @@ from ple.games import Catcher, MonsterKong, RaycastMaze
 from agents.utils import SRULogger
 
 game = MonsterKong()
-env = PLE(game, display_screen=True, force_fps=True)
+env = PLE(game, display_screen=False, force_fps=True)
 env.init()
 
 log = SRULogger(file_path='logs\\mk_1_resources_usage_log.txt', log_every_seconds=10 * 60)
