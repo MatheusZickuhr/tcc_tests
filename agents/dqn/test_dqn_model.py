@@ -28,7 +28,7 @@ env = PLE(game, display_screen=True, force_fps=False)
 env.init()
 actions = env.getActionSet()
 
-model = load_model('models\\mk_1.model')
+model = load_model('models\\mk_2.model')
 
 while True:
     if env.game_over():

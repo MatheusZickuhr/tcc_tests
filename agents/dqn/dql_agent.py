@@ -1,5 +1,9 @@
-import time
+# desabilita o uso de gpu
+import os
 
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
+import time
 import keras
 from keras.engine.saving import load_model
 import cv2
@@ -87,11 +91,13 @@ class DQNAgent:
 
         minibatch = random.sample(self.replay_memory, self.minibatch_size)
 
-        current_states = np.array([transition[0] for transition in minibatch])
-        current_qs_list = self.model.predict(current_states)
-
-        new_current_states = np.array([transition[3] for transition in minibatch])
-        future_qs_list = self.target_model.predict(new_current_states)
+        current_states = []
+        new_current_states = []
+        for transition in minibatch:
+            current_states.append(transition[0])
+            new_current_states.append(transition[3])
+        current_qs_list = self.model.predict(np.array(current_states))
+        future_qs_list = self.target_model.predict(np.array(new_current_states))
 
         X = []
         y = []
@@ -115,7 +121,9 @@ class DQNAgent:
             batch_size=self.minibatch_size,
             verbose=0,
             shuffle=False,
-            callbacks=None
+            callbacks=None,
+            use_multiprocessing=True,
+            workers=4
         )
 
         if terminal_state:
