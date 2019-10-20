@@ -40,12 +40,12 @@ class DQNAgent:
         self.min_epsilon = 0.001
         self.save_model_every = 500
         self.input_shape = input_shape
-        self.n_actions = len(env.getActionSet())
         self.min_replay_memory_size = 1000
         self.minibatch_size = 64
         self.discount = discount
         self.update_target_every = update_target_every
         self.env = env
+        self.n_actions = self.env.action_space.n
         if self.use_pixels_input:
             self.model = self.create_conv_model() if model_path is None else load_model(model_path)
             self.target_model = self.create_conv_model() if model_path is None else load_model(model_path)
@@ -173,27 +173,20 @@ class DQNAgent:
         with open(path, 'a') as file:
             file.write(f'{episode},{reward}\n')
 
-    def fit(self, episodes=20_000, save_model_as='model_name.model', resume_from_episode=0, episode_time_limit=5 * 60):
+    def fit(self, episodes=20_000, save_model_as='model_name.model'):
         epsilon_decay = 1 - (5 / episodes)
-        self.recalc_epsilon(epsilon_decay, resume_from_episode)
         for episode in tqdm(range(1, episodes + 1), ascii=True, unit='episodes'):
-            episode_start_time = time.time()
-
-            if episode < resume_from_episode:
-                continue
-
             episode_reward = 0
-            self.env.reset_game()
-            current_state = self.get_current_env_state()
+            self.env.reset()
+            current_state, _, _, _ = self.env.step(self.env.action_space.sample())
+            current_state = keras.utils.normalize(current_state)[0]
             done = False
             while not done:
-                action_index = np.argmax(self.get_qs(current_state)) if np.random.random() > self.epsilon \
-                    else random.randint(0, self.n_actions - 1)
-                action = self.env.getActionSet()[action_index]
-                reward = self.env.act(action)
-                new_state = self.get_current_env_state()
-                done = self.env.game_over() or time.time() - episode_start_time > episode_time_limit
-                self.update_replay_memory((current_state, action_index, reward, new_state, done))
+                action = np.argmax(self.get_qs(current_state)) if np.random.random() > self.epsilon \
+                    else self.env.action_space.sample()
+                new_state, reward, done, info = self.env.step(action)
+                new_state = keras.utils.normalize(new_state)[0]
+                self.update_replay_memory((current_state, action, reward, new_state, done))
                 self.train(done)
                 current_state = new_state
                 episode_reward += reward
