@@ -5,7 +5,7 @@ import numpy as np
 
 env = gym.make('LunarLander-v2')
 
-model = load_model('models/lunar1.model')
+model = load_model('models/test.model')
 
 env.reset()
 

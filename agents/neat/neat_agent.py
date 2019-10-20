@@ -19,14 +19,14 @@ class NeatAgent:
     def fit(self, generations=1000, save_as=None):
         for generation in tqdm(range(generations)):
             for element in self.population:
-                self.env.reset_game()
+                self.env.reset()
                 done = False
+                observation, _, _, _ = self.env.step(self.env.action_space.sample())
                 while not done:
-                    state = self.resize_and_normalize_img(self.env.getScreenRGB())
-                    action = element.get_next_action(state)
-                    reward = self.env.act(self.env.getActionSet()[action])
+                    observation = keras.utils.normalize(observation)
+                    action = element.get_next_action(observation)
+                    observation, reward, done, info = self.env.step(action)
                     element.fitness += reward if reward >= 0 else 0
-                    done = self.env.game_over()
 
             self.crossover_mutate_replace()
         self.save_best_element(save_as)
@@ -42,7 +42,7 @@ class NeatAgent:
     def create_population(self, size=1):
         population = []
         for i in tqdm(range(size), unit='population element'):
-            population.append(Ann(input_shape=self.input_shape, n_actions=len(self.env.getActionSet())))
+            population.append(Ann(input_shape=self.input_shape, n_actions=self.env.action_space.n))
 
         return population
 
