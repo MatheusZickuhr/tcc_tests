@@ -11,10 +11,12 @@ from agents.neat.neat_ann import Ann
 
 class NeatAgent:
 
-    def __init__(self, env=None, input_shape=None, population_size=100):
+    def __init__(self, env=None, input_shape=None, population_size=100, reward_log_path=''):
         self.env = env
         self.input_shape = input_shape
         self.population = self.create_population(size=population_size)
+        self.log_reward_every = 500
+        self.reward_log_path = reward_log_path
 
     def fit(self, generations=1000, save_as=None):
         for generation in tqdm(range(generations)):
@@ -26,18 +28,25 @@ class NeatAgent:
                     observation = keras.utils.normalize(observation)
                     action = element.get_next_action(observation)
                     observation, reward, done, info = self.env.step(action)
-                    element.fitness += reward if reward >= 0 else 0
+                    element.fitness += reward
 
+            self.normalize_polulation_fitness()
             self.crossover_mutate_replace()
+
+            if generation == 0 or generation % self.log_reward_every == 0 or generation == generations - 1:
+                self.log_reward(self.reward_log_path, generation=generation, reward=self.population[-1].fitness)
+
         self.save_best_element(save_as)
 
-    def encode(self, ann):
-        return ann.model.get_weights()
+    def normalize_polulation_fitness(self):
+        fitness_list = [e.fitness for e in self.population]
+        fitness_list = keras.utils.normalize(fitness_list)[0]
+        for i, e in enumerate(self.population):
+            e.fitness = fitness_list[i]
 
-    def decode(self, encoded_ann):
-        ann = Ann(input_shape=self.input_shape, n_actions=len(self.env.getActionSet()))
-        ann.model.set_weights(encoded_ann)
-        return ann
+    def log_reward(self, path, generation=0, reward=0):
+        with open(path, 'a') as file:
+            file.write(f'{generation},{reward}\n')
 
     def create_population(self, size=1):
         population = []
@@ -45,18 +54,6 @@ class NeatAgent:
             population.append(Ann(input_shape=self.input_shape, n_actions=self.env.action_space.n))
 
         return population
-
-    def resize_and_normalize_img(self, img):
-        if self.input_shape:
-            img = cv2.resize(img, dsize=self.input_shape[:2], interpolation=cv2.INTER_CUBIC)
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        return keras.utils.normalize(img.astype(np.float32))
-
-    def decode_all_population(self):
-        self.population = [self.decode(e) for e in self.population]
-
-    def encode_all_population(self):
-        self.population = [self.encode(e) for e in self.population]
 
     def crossover_mutate_replace(self):
         mutation_chance = 0.1
