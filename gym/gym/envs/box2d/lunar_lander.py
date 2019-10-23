@@ -141,11 +141,11 @@ class LunarLander(gym.Env, EzPickle):
         chunk_x = [W/(CHUNKS-1)*i for i in range(CHUNKS)]
         x1_index = random.randint(0, CHUNKS - 1)
         x2_index = x1_index + 2 if x1_index + 2 < CHUNKS else x1_index - 2
-        self.helipad_x1 = chunk_x[x1_index]
-        self.helipad_x2 = chunk_x[x2_index]
-        self.helipad_y = H / 4
         start = min(x1_index, x2_index)
         end = max(x1_index, x2_index)
+        self.helipad_x1 = chunk_x[start]
+        self.helipad_x2 = chunk_x[end]
+        self.helipad_y = H / 4
         for index in range(start-1, end+2, 1):
             height[index] = self.helipad_y
 
@@ -299,8 +299,8 @@ class LunarLander(gym.Env, EzPickle):
             20.0*self.lander.angularVelocity/FPS,
             1.0 if self.legs[0].ground_contact else 0.0,
             1.0 if self.legs[1].ground_contact else 0.0,
-            self.helipad_x1,
-            self.helipad_x2,
+            (self.helipad_x1 - VIEWPORT_W/SCALE/2) / (VIEWPORT_W/SCALE/2),
+            (self.helipad_x2 - VIEWPORT_W/SCALE/2) / (VIEWPORT_W/SCALE/2),
             ]
         assert len(state)==10
 
@@ -322,6 +322,7 @@ class LunarLander(gym.Env, EzPickle):
             done   = True
             reward = -100
         if not self.lander.awake:
+            print('pousou')
             done   = True
             reward = +100
         return np.array(state, dtype=np.float32), reward, done, {}

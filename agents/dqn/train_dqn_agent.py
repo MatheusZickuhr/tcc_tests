@@ -4,14 +4,13 @@ from agents.utils import SRULogger
 
 env = gym.make('LunarLander-v2')
 
-log = SRULogger(file_path='logs/lunar2_resources_usage_log.txt', log_every_seconds=10 * 60)
+log = SRULogger(file_path='logs/lunar1_other_new_resources_usage_log.txt', log_every_seconds=10 * 60)
 
 agent = DQNAgent(
     env=env,
-    input_shape=(8,),
-    reward_log_path='logs/lunar2_reward_log.csv',
-    model_path='models/lunar1.model'
+    input_shape=(10,),
+    reward_log_path='logs/lunar1_other_new_reward_log.csv',
 )
-agent.fit(episodes=20_000, save_model_as='models/lunar2.model')
+agent.fit(episodes=100_000, save_model_as='models/lunar1_other_new.model')
 
 log.finish()
