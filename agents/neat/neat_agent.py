@@ -17,9 +17,13 @@ class NeatAgent:
         self.population = self.create_population(size=population_size)
         self.log_reward_every = 500
         self.reward_log_path = reward_log_path
+        self.is_population_encoded = False
 
     def fit(self, generations=1000, save_as=None):
         for generation in tqdm(range(generations)):
+            if self.is_population_encoded:
+                self.decode()
+
             for element in self.population:
                 self.env.reset()
                 done = False
@@ -36,7 +40,32 @@ class NeatAgent:
             if generation == 0 or generation % self.log_reward_every == 0 or generation == generations - 1:
                 self.log_reward(self.reward_log_path, generation=generation, reward=self.population[-1].fitness)
 
+            self.encode()
+            keras.backend.clear_session()
+
         self.save_best_element(save_as)
+
+    def encode(self):
+        self.is_population_encoded = True
+        encoded_population = []
+        for e in self.population:
+            encoded_population.append(
+                {
+                    'weights': e.model.get_weights(),
+                    'fitness': e.fitness
+                }
+            )
+        self.population = encoded_population
+
+    def decode(self):
+        self.is_population_encoded = False
+        decoded_population = []
+        for e in self.population:
+            ann = Ann(input_shape=self.input_shape, n_actions=self.env.action_space.n)
+            ann.model.set_weights(e['weights'])
+            ann.fitness = e['fitness']
+            decoded_population.append(ann)
+        self.population = decoded_population
 
     def normalize_polulation_fitness(self):
         fitness_list = [e.fitness for e in self.population]
@@ -102,8 +131,12 @@ class NeatAgent:
                 child.mutate()
 
         for i in range(len(children)):
+            del self.population[i].model
             self.population[i] = children[i]
 
     def save_best_element(self, save_as):
+        if self.is_population_encoded:
+            self.decode()
+
         best = sorted(self.population, key=lambda x: x.fitness)[-1]
         best.model.save(save_as)
