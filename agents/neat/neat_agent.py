@@ -1,12 +1,9 @@
 import copy
 import random
-
-import cv2
 import keras
-import numpy as np
 from tqdm import tqdm
-
 from agents.neat.neat_ann import Ann
+import gc
 
 
 class NeatAgent:
@@ -15,7 +12,7 @@ class NeatAgent:
         self.env = env
         self.input_shape = input_shape
         self.population = self.create_population(size=population_size)
-        self.log_reward_every = 500
+        self.log_reward_every = 1
         self.reward_log_path = reward_log_path
         self.is_population_encoded = False
 
@@ -23,6 +20,8 @@ class NeatAgent:
         for generation in tqdm(range(generations)):
             if self.is_population_encoded:
                 self.decode()
+
+            self.reset_population_fitness()
 
             for element in self.population:
                 self.env.reset()
@@ -32,9 +31,9 @@ class NeatAgent:
                     observation = keras.utils.normalize(observation)
                     action = element.get_next_action(observation)
                     observation, reward, done, info = self.env.step(action)
-                    element.fitness += reward
-
-            self.normalize_polulation_fitness()
+                    element.fitness += reward if reward > 0 else 0
+                element.was_evaluated = True
+            # self.normalize_polulation_fitness()
             self.crossover_mutate_replace()
 
             if generation == 0 or generation % self.log_reward_every == 0 or generation == generations - 1:
@@ -42,8 +41,13 @@ class NeatAgent:
 
             self.encode()
             keras.backend.clear_session()
+            gc.collect()
 
         self.save_best_element(save_as)
+
+    def reset_population_fitness(self):
+        for e in self.population:
+            e.fitness = 0
 
     def encode(self):
         self.is_population_encoded = True
@@ -55,6 +59,7 @@ class NeatAgent:
                     'fitness': e.fitness
                 }
             )
+            del e.model
         self.population = encoded_population
 
     def decode(self):
@@ -68,6 +73,12 @@ class NeatAgent:
         self.population = decoded_population
 
     def normalize_polulation_fitness(self):
+        def normalize(arr):
+            new_arr = []
+            for e in arr:
+                new_arr.append((e - min(arr)) / (max(arr) - min(arr)))
+            return new_arr
+
         fitness_list = [e.fitness for e in self.population]
         fitness_list = keras.utils.normalize(fitness_list)[0]
         for i, e in enumerate(self.population):

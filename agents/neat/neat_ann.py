@@ -19,6 +19,7 @@ class Ann:
         self.fitness = 0
         self.dense_layers = list()
         self.model = self.create_model() if create_model else None
+        self.was_evaluated = False
 
     def create_model(self):
         model = Sequential()
@@ -123,11 +124,13 @@ class Ann:
     def mutate(self):
         def mutate_weights(weights):
             for i in range(len(weights)):
-                if type(weights[i]) != list:
+                if type(weights[i]) == np.float32:
                     if random.random() < 0.20:
                         weights[i] = random.random()
                 else:
                     mutate_weights(weights[i])
 
         for layer in self.model.layers:
-            mutate_weights(layer.get_weights())
+            new_weights = layer.get_weights()
+            mutate_weights(new_weights)
+            layer.set_weights(new_weights)

@@ -5,7 +5,7 @@ import numpy as np
 
 env = gym.make('LunarLander-v2')
 
-model = load_model('models/test.model')
+model = load_model('models/rf1.model')
 
 env.reset()
 
@@ -19,4 +19,5 @@ while True:
     total_reward += reward
     if done:
         print(total_reward)
+        total_reward = 0
         env.reset()
