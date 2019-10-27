@@ -56,7 +56,8 @@ class NeatAgent:
             encoded_population.append(
                 {
                     'weights': e.model.get_weights(),
-                    'fitness': e.fitness
+                    'fitness': e.fitness,
+                    'was_evaluated': e.was_evaluated,
                 }
             )
             del e.model
@@ -69,6 +70,7 @@ class NeatAgent:
             ann = Ann(input_shape=self.input_shape, n_actions=self.env.action_space.n)
             ann.model.set_weights(e['weights'])
             ann.fitness = e['fitness']
+            ann.was_evaluated = e['was_evaluated']
             decoded_population.append(ann)
         self.population = decoded_population
 
