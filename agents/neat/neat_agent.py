@@ -2,7 +2,7 @@ import copy
 import random
 import keras
 from tqdm import tqdm
-from agents.neat.neat_ann import Ann
+from agents.neat.neat_ann import NeatAnn
 import gc
 
 
@@ -58,6 +58,7 @@ class NeatAgent:
                     'weights': e.model.get_weights(),
                     'fitness': e.fitness,
                     'was_evaluated': e.was_evaluated,
+                    'topology': e.topology
                 }
             )
             del e.model
@@ -67,7 +68,7 @@ class NeatAgent:
         self.is_population_encoded = False
         decoded_population = []
         for e in self.population:
-            ann = Ann(input_shape=self.input_shape, n_actions=self.env.action_space.n)
+            ann = NeatAnn(input_shape=self.input_shape, n_actions=self.env.action_space.n, topology=e['topology'])
             ann.model.set_weights(e['weights'])
             ann.fitness = e['fitness']
             ann.was_evaluated = e['was_evaluated']
@@ -93,7 +94,7 @@ class NeatAgent:
     def create_population(self, size=1):
         population = []
         for i in tqdm(range(size), unit='population element'):
-            population.append(Ann(input_shape=self.input_shape, n_actions=self.env.action_space.n))
+            population.append(NeatAnn(input_shape=self.input_shape, n_actions=self.env.action_space.n))
 
         return population
 

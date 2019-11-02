@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 env = gym.make('LunarLander-v2')
 
-model = load_model('models/ll1.model')
+model = load_model('models/rf2.model')
 
 env.reset()
 

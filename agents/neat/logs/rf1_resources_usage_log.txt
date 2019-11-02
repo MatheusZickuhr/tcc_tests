@@ -1,3 +1,0 @@
-cpu_load_avg=29.503571428571433
-memory_usage_avg=3481.130440848214
-time(seconds)=16202.736626386642
