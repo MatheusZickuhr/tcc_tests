@@ -1,4 +1,8 @@
 .idea/
 venv/
 python-ne/
+keras-rl/
+neuroevolution-sandbox/
+PyGame-Learning-Environment/
+gym/
 *.pyc
