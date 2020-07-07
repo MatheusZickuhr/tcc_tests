@@ -1,5 +1,6 @@
 from threading import Thread
 import multiprocessing
+import numpy
 import psutil
 import matplotlib.pyplot as plt
 import os
@@ -69,5 +70,3 @@ def log_performance(folder_path):
         log_thread.join()
 
     return wrapper
-
-
