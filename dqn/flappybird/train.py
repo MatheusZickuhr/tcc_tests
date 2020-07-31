@@ -16,9 +16,8 @@ def main():
 
     model = Sequential()
     model.add(Flatten(input_shape=(1,) + env_adapter.get_input_shape()))
-    model.add(Dense(16, activation='relu'))
-    model.add(Dense(16, activation='relu'))
-    model.add(Dense(16, activation='relu'))
+    model.add(Dense(32, activation='relu'))
+    model.add(Dense(32, activation='relu'))
     model.add(Dense(env_adapter.get_n_actions(), activation='linear'))
 
     memory = SequentialMemory(limit=1_000_000, window_length=1)
