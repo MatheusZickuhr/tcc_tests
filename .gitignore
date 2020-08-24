@@ -4,5 +4,6 @@ python-ne/
 keras-rl/
 neuroevolution-sandbox/
 PyGame-Learning-Environment/
+neat-python/
 gym/
 *.pyc
