@@ -4,7 +4,7 @@ import neat
 from neuroevolution_sandbox.agents.neat_agent import NeatAgent
 from neuroevolution_sandbox.env_adapters.gym_env_adapter import GymEnvAdapter
 
-from log_performance import log_performance
+import log_performance
 from neat_file_reporter import NeatFileReporter
 
 

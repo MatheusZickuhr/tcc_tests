@@ -1,4 +1,5 @@
-import gym
+from neuroevolution_sandbox.agents.ne_agent import NeAgent
+from neuroevolution_sandbox.env_adapters.gym_env_adapter import GymEnvAdapter
 
 from python_ne.core.ga.console_logger import ConsoleLogger
 from python_ne.core.ga.crossover_strategies import NoCrossover
@@ -6,16 +7,13 @@ from python_ne.core.ga.csv_logger import CsvLogger
 from python_ne.core.ga.matplotlib_logger import MatplotlibLogger
 from python_ne.core.ga.mutation_strategies import Mutation1
 from python_ne.core.model_adapters.default_model_adapter import DefaultModelAdapter
-from python_ne.extra.env_adapters.gym_env_adapter import GymEnvAdapter
-from python_ne.extra.ne_agent import NeAgent
-from log_performance import log_performance
+import log_performance
 
 
 @log_performance(folder_path='training_data')
 def main():
-    env = gym.make('LunarLander-v2')
 
-    env_adapter = GymEnvAdapter(env=env, render=False, continuous=False)
+    env_adapter = GymEnvAdapter(env_name='LunarLander-v2', render=False, continuous=False)
 
     agent = NeAgent(
         env_adapter=env_adapter,
@@ -32,7 +30,7 @@ def main():
     console_logger = ConsoleLogger()
 
     agent.train(
-        number_of_generations=1000,
+        number_of_generations=10,
         population_size=500,
         selection_percentage=0.9,
         mutation_chance=0.01,

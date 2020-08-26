@@ -8,7 +8,7 @@ from python_ne.core.ga.mutation_strategies import Mutation1
 from python_ne.core.model_adapters.default_model_adapter import DefaultModelAdapter
 from python_ne.extra.env_adapters.gym_env_adapter import GymEnvAdapter
 from python_ne.extra.ne_agent import NeAgent
-from log_performance import log_performance
+import log_performance
 
 
 @log_performance(folder_path='training_data')

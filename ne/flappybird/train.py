@@ -6,12 +6,12 @@ from python_ne.core.ga.csv_logger import CsvLogger
 from python_ne.core.ga.matplotlib_logger import MatplotlibLogger
 from python_ne.core.ga.mutation_strategies import Mutation1
 from python_ne.core.model_adapters.default_model_adapter import DefaultModelAdapter
+
 from log_performance import log_performance
 
 
 @log_performance(folder_path='training_data')
 def main():
-
     env_adapter = PleEnvAdapter(env_name='flappybird', render=False, continuous=False)
 
     agent = NeAgent(
@@ -20,8 +20,8 @@ def main():
     )
 
     nn_config = (
-        (env_adapter.get_input_shape(), 8, 'tanh'),
-        (8, 'tanh'),
+        (env_adapter.get_input_shape(), 16, 'tanh'),
+        (16, 'tanh'),
         (env_adapter.get_n_actions(), 'tanh')
     )
 

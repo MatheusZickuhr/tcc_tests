@@ -3,7 +3,7 @@ from keras.layers import Dense, Flatten
 from keras.optimizers import Adam
 from rl.agents.dqn import DQNAgent
 from rl.callbacks import FileLogger
-from rl.model_adapters import PleEnvAdapter, GymEnvAdapter
+from rl.model_adapters import GymEnvAdapter
 from rl.memory import SequentialMemory
 from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
 
@@ -31,8 +31,6 @@ def main():
         value_test=.05,
         nb_steps=3_500_000
     )
-
-    policy = EpsGreedyQPolicy()
 
     dqn = DQNAgent(
         model=model,
