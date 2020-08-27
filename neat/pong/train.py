@@ -14,7 +14,7 @@ def main():
     agent = NeatAgent(env_adapter=env_adapter, config_file_path='config.txt')
 
     agent.train(
-        number_of_generations=100,
+        number_of_generations=25,
         reporters=(
             neat.StdOutReporter(True),
             NeatFileReporter(file_path='training_data/log.csv')

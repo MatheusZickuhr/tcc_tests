@@ -30,12 +30,11 @@ def main():
     console_logger = ConsoleLogger()
 
     agent.train(
-        number_of_generations=300,
+        number_of_generations=75,
         population_size=500,
         selection_percentage=0.9,
         mutation_chance=0.01,
-        fitness_threshold=20,
-        play_n_times=5,
+        fitness_threshold=float('inf'),
         neural_network_config=nn_config,
         crossover_strategy=Crossover4(),
         mutation_strategy=Mutation1(),
