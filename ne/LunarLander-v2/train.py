@@ -2,12 +2,13 @@ from neuroevolution_sandbox.agents.ne_agent import NeAgent
 from neuroevolution_sandbox.env_adapters.gym_env_adapter import GymEnvAdapter
 
 from python_ne.core.ga.console_logger import ConsoleLogger
-from python_ne.core.ga.crossover_strategies import NoCrossover
+from python_ne.core.ga.crossover_strategies import NoCrossover, Crossover4
 from python_ne.core.ga.csv_logger import CsvLogger
 from python_ne.core.ga.matplotlib_logger import MatplotlibLogger
 from python_ne.core.ga.mutation_strategies import Mutation1
 from python_ne.core.model_adapters.default_model_adapter import DefaultModelAdapter
-import log_performance
+
+from log_performance import log_performance
 
 
 @log_performance(folder_path='training_data')
@@ -22,6 +23,7 @@ def main():
 
     nn_config = (
         (env_adapter.get_input_shape(), 16, 'tanh'),
+        (16, 'tanh'),
         (env_adapter.get_n_actions(), 'tanh')
     )
 
@@ -30,13 +32,13 @@ def main():
     console_logger = ConsoleLogger()
 
     agent.train(
-        number_of_generations=10,
+        number_of_generations=300,
         population_size=500,
         selection_percentage=0.9,
         mutation_chance=0.01,
-        fitness_threshold=250,
+        fitness_threshold=1000,
         neural_network_config=nn_config,
-        crossover_strategy=NoCrossover(),
+        crossover_strategy=Crossover4(),
         mutation_strategy=Mutation1(),
         play_n_times=5,
         max_n_steps=300,

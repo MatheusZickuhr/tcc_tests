@@ -20,8 +20,8 @@ def main():
     )
 
     nn_config = (
-        (env_adapter.get_input_shape(), 8, 'tanh'),
-        (8, 'tanh'),
+        (env_adapter.get_input_shape(), 16, 'tanh'),
+        (16, 'tanh'),
         (env_adapter.get_n_actions(), 'tanh')
     )
 
@@ -30,11 +30,12 @@ def main():
     console_logger = ConsoleLogger()
 
     agent.train(
-        number_of_generations=500,
+        number_of_generations=300,
         population_size=500,
         selection_percentage=0.9,
         mutation_chance=0.01,
-        fitness_threshold=500,
+        fitness_threshold=20,
+        play_n_times=5,
         neural_network_config=nn_config,
         crossover_strategy=Crossover4(),
         mutation_strategy=Mutation1(),
