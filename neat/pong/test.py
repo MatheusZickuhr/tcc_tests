@@ -5,4 +5,13 @@ env_adapter = PleEnvAdapter(env_name='pong', render=False, continuous=False)
 agent = NeatAgent(env_adapter=env_adapter, config_file_path='config.txt')
 
 agent.load(file_path='trained_model/model')
-while 1: print(agent.play())
+
+rewards = []
+for i in range(500):
+    reward = agent.play()
+    rewards.append(reward)
+    print(reward)
+
+file = open('trained_model/result.json', 'w+')
+file.write('{"rewards":' + str(rewards) + '}')
+file.close()
