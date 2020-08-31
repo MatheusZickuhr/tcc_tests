@@ -106,14 +106,12 @@ def show_memory_usage(game_name, algorithms):
         print(f'memory usage mean {algorithm}:', mean)
 
 
-def reward_during_training_chart(game_name):
-    sample_size = 100
-
+def reward_during_training_chart(game_name, sample_size=100):
     dql_reward_samples = []
     dql_log = json.loads(open(f'dqn/{game_name}/training_data/log.json').read())
     episode_reward = dql_log['episode_reward']
     step = len(episode_reward) // sample_size
-    for i in range(0, len(episode_reward), step):
+    for i in range(0, len(episode_reward), step or 1):
         dql_reward_samples.append(episode_reward[i])
 
     ne_reward_samples = []
@@ -121,7 +119,7 @@ def reward_during_training_chart(game_name):
     ne_log_csv = list(csv.reader(ne_log))[1:]
     generation_reward = [float(line[1]) for line in ne_log_csv]
     step = len(generation_reward) // sample_size
-    for i in range(0, len(generation_reward), step):
+    for i in range(0, len(generation_reward), step or 1):
         ne_reward_samples.append(generation_reward[i])
 
     neat_reward_samples = []
@@ -129,7 +127,8 @@ def reward_during_training_chart(game_name):
     neat_log_csv = list(csv.reader(neat_log))[1:]
     generation_reward = [float(line[1]) for line in neat_log_csv]
     step = len(generation_reward) // sample_size
-    for i in range(0, len(generation_reward), step):
+
+    for i in range(0, len(generation_reward), step or 1):
         neat_reward_samples.append(generation_reward[i])
 
     plt.plot(neat_reward_samples)
@@ -143,15 +142,15 @@ def reward_during_training_chart(game_name):
 
 
 if __name__ == '__main__':
-    game = 'flappybird'
+    game = 'pong'
     algs = ('dqn', 'neat', 'ne')
 
-    reward_during_training_chart(game)
+    reward_during_training_chart(game, sample_size=25)
 
-    # show_rewards(game, algs)
-    # show_time_to_train(game)
-    # show_cpu_usage(game, algs)
-    # show_memory_usage(game, algs)
+    show_rewards(game, algs)
+    show_time_to_train(game)
+    show_cpu_usage(game, algs)
+    show_memory_usage(game, algs)
 
     # cpu_usage_chart(game, algs)
     # memory_usage_chart(game, algs)
