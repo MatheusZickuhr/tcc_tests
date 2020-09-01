@@ -6,7 +6,7 @@ agent = NeatAgent(env_adapter=env_adapter, config_file_path='config.txt')
 agent.load(file_path='trained_model/model')
 
 rewards = []
-for i in range(5):
+for i in range(500):
     reward = agent.play()
     rewards.append(reward)
     print(reward)

@@ -142,10 +142,10 @@ def reward_during_training_chart(game_name, sample_size=100):
 
 
 if __name__ == '__main__':
-    game = 'pong'
+    game = 'LunarLander-v2'
     algs = ('dqn', 'neat', 'ne')
 
-    reward_during_training_chart(game, sample_size=25)
+    reward_during_training_chart(game, sample_size=100)
 
     show_rewards(game, algs)
     show_time_to_train(game)
